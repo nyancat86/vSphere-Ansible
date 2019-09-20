@@ -1,0 +1,59 @@
+---
+- name: Clone a virtual machine from Windows template and customize
+  vmware_guest:
+    # Configure Target
+    hostname: "{{ vcenter_hostname }}"
+    username: "{{ vcenter_username }}"
+    password: "{{ vcenter_password }}"
+    validate_certs: no
+    datacenter: "{{ datacenter_name}}"
+    datastore: "{{ datastore_cluster_name }}"
+    cluster: "{{ cluster_name }}"
+    folder: /
+
+    # Configure Virtual Machine over view
+    name: '{{ item.vm_name }}'
+    template: '{{ item.VM_template }}'
+
+    # Configure virtual hardware setting 
+    hardware:
+      memory_mb: 8192
+      nested_virt: '{{ item.VM_hvOn }}'
+      num_cpus: 4
+      boot_firmware: '{{ item.VM_bootfirm }}'
+    networks:
+    - name: Default
+      device_type: e1000e
+      ip: '{{ item.set_ip }}'
+      netmask: 255.255.255.0
+      gateway: 192.168.1.1
+      #mac:
+      domain: '{{ domain_name }}'
+      dns_servers:
+      - 192.168.1.100
+      start_connected: yes
+      #- vlan: 0
+      #type: dhcp
+
+    customization:
+      #productid: ""
+      autologon: no
+      ## Login customize 
+      fullname: '{{ item.VM_userename }}'
+      password: '{{ item.VM_password }}'
+
+      ## Set domain infomation
+      #domain_admin:
+      #domainadminpassword:
+      
+            
+
+      dns_servers:
+      - 192.168.1.100
+      domain: '{{ domain_name }}'
+      #runonce:
+      #- powershell.exe -ExecutionPolicy Unrestricted -File C:\Windows\Temp\ConfigureRemotingForAnsible.ps1 -ForceNewSSLCert -EnableCredSSP
+  delegate_to: localhost
+  with_items: 
+    - '{{ common }}'
+    - '{{ resources }}'

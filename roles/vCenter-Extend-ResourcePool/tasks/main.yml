@@ -3,9 +3,9 @@
     hostname: '{{ vcenter_hostname }}'
     username: '{{ vcenter_username }}'
     password: '{{ vcenter_password }}'
-    datacenter: '{{ datacenter_name }}'
-    cluster: '{{ cluster_name }}'
-    resource_pool: Source-VM
+    datacenter: '{{ datacenter }}'
+    cluster: '{{ cluster }}'
+    resource_pool: "{{ item }}"
     mem_shares: normal
     mem_limit: -1
     mem_reservation: 0

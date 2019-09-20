@@ -1,0 +1,20 @@
+- hosts: vcsa
+  connection: local
+  gather_facts: no
+  roles:
+    - vCenter-Prefix-Configure
+
+
+- hosts: esxi
+  connection: local
+  gather_facts: no
+  roles:
+    - ESXi-hosts-Configure
+
+- hosts: vcsa
+  connection: local
+  gather_facts: no
+  roles:
+    - vCenter-Postfix-Configure
+    - vCenter-Extend-Folder
+    - vCenter-Extend-ResourcePool

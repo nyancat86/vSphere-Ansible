@@ -1,0 +1,14 @@
+- name: Add Management Network VM
+  vmware_portgroup:
+    hostname: "{{ vcenter_hostname }}"
+    username: "{{ vcenter_username }}"
+    password: "{{ vcenter_password }}"
+    cluster_name: "{{ cluster }}"
+    switch_name: "{{ item.vswitch }}"
+    portgroup_name: "{{ item.pg_name }}"
+    vlan_id: "{{ item.vlan_id }}"
+    validate_certs: no
+    state: '{{ item.state }}'
+  delegate_to: localhost
+  with_items:
+    - "{{ Networks }}"

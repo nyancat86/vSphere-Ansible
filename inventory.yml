@@ -1,77 +1,86 @@
 # This is example setting (Sorry... no check)
+# Please set Ansible Vault, if you custom for your site.
 all:
   hosts:
     vcsa:
       ansible_host: 192.168.1.254
-        
-  vars:
-    # vCenter login
-    vcenter_hostname: "192.168.1.254"
-    vcenter_username: "administrator@nyancat.local"
-    vcenter_password: "Changeme-86"
-    vcenter_license:  "f600d-21ae3-5592b-249e0-cc341"
-
-    # ESXi login
-    esxi_user:        "root"
-    esxi_password:    "Changeme-86"
-
-    # Inventory Setting
-    inventory_dns: 
-      - 192.168.1.100
-      - 192.168.1.101
-    domain_name: "nyancat.local"
-    datacenter: 
-      - "Datacenter1"
-    cluster:
-      - "Cluster"     
-    datastore_cluster:
-      - "Datastore_Cluster"
-    portgroup_name: "Default"
-    vswitch_name: "vSwitch0" 
-    vlan_id: 0
-
-
-
-
-
-  clildren:
+      vcenter_license:  "f600d-21ae3-5592b-249e0-cc341"
+  children:
     esxi:
       hosts:
         esxi1:
-          ansible_host: 192.168.1.1
+          ansible_host: 192.168.1.201
           esxi_license: ""
         esxi2:
-          ansible_host: 192.168.1.2
+          ansible_host: 192.168.1.202
           esxi_license: ""
         esxi3:
-          ansible_host: 192.168.1.3
+          ansible_host: 192.168.1.203
           esxi_license: ""
 
+  vars:
+
+    
+    # vCenter onfigure (Sensitive)
+    vcenter_hostname: "192.168.1.254"
+    vcenter_username: "administrator@nyancat.local"
+    vcenter_password: "Changeme-86"
+    domain_name: "nyancat.local"
+
+    datacenter: "Datacenter1"
+    cluster: "Cluster"
+    datastore_cluster: "Datastore_Cluster"
+
+    # ESXi configure (Sensitive)
+    esxi_user:        "root"
+    esxi_password:    "Changeme-86"
+    
 
 
 
-    VirtualMachine:
-      hosts:
-        WinSVR-01:
-          vm_name: "test1"
-          set_ip: 192.168.10.1
-          VM_memory: 4096
+    # Global configure
+    inventory_dns: 
+      - 192.168.1.100
+      - 192.168.1.101
 
-        WinSVR-02:
-          set_ip: 192.168.10.2
+    Folders:
+      - name: "VirtualMachine"
+        type: "vm"
+        state: "absent"
+      - name: "Templates" 
+        type: "vm"
+        state: "present"
 
-        WinSVR-03:
-          set_ip: 192.168.10.3
+    Networks:
+      - pg_name: "VM Network"
+        vswitch: "vSwitch0"
+        vlan_id: 0
+        state: "present"
+      - pg_name: "Default"
+        vswitch: "vSwitch0" 
+        vlan_id: 1
+        state: "present"
+      - pg_name: "test_sw"
+        vswitch: "vSwitch0" 
+        vlan_id: 1
+        state: "absent"
 
-      vars:
-        VM_template: Windows-SVR
-
-        VM_memory: 8192
-        VM_cpus: 4
-        VM_hvOn: no
-        VM_bootfirm: bios
-
-        VM_userename: Nyancat86
-        VM_password: Changeme-86
+    # VirtualMachine Customize
+    # Default value
+    VM_template: Windows-SVR
+    VM_memory: 8192
+    VM_cpus: 4
+    VM_hvOn: no
+    VM_bootfirm: bios
+    VM_userename: Nyancat86
+    VM_password: Changeme-86
+    # Custom value
+    Resources:
+      - vm_name: "WinSVR-01"
+        set_ip: 192.168.10.1
+      - vm_name: "WinSVR-02"
+        set_ip: 192.168.10.2
+      - vm_name: "WinSVR-03"
+        set_ip: 192.168.10.3
 
 

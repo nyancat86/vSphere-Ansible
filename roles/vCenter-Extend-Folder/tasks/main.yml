@@ -4,12 +4,13 @@
     hostname: '{{ vcenter_hostname }}'
     username: '{{ vcenter_username }}'
     password: '{{ vcenter_password }}'
-    datacenter_name: '{{ datacenter_name }}'
-    folder_name: "{{ item }}"
-    folder_type: vm
-    state: present
+    datacenter_name: '{{ datacenter }}'
+    folder_name: '{{ item.name }}'
+    folder_type: '{{ item.type }}'
+    state: '{{ item.state }}'
     validate_certs: no
   delegate_to: localhost
-  loop:
-    - VirtualMachine
-    - Templates
+  with_items:
+    - '{{ Folders }}'
+    
+
