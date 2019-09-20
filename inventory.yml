@@ -1,0 +1,77 @@
+# This is example setting (Sorry... no check)
+all:
+  hosts:
+    vcsa:
+      ansible_host: 192.168.1.254
+        
+  vars:
+    # vCenter login
+    vcenter_hostname: "192.168.1.254"
+    vcenter_username: "administrator@nyancat.local"
+    vcenter_password: "Changeme-86"
+    vcenter_license:  "f600d-21ae3-5592b-249e0-cc341"
+
+    # ESXi login
+    esxi_user:        "root"
+    esxi_password:    "Changeme-86"
+
+    # Inventory Setting
+    inventory_dns: 
+      - 192.168.1.100
+      - 192.168.1.101
+    domain_name: "nyancat.local"
+    datacenter: 
+      - "Datacenter1"
+    cluster:
+      - "Cluster"     
+    datastore_cluster:
+      - "Datastore_Cluster"
+    portgroup_name: "Default"
+    vswitch_name: "vSwitch0" 
+    vlan_id: 0
+
+
+
+
+
+  clildren:
+    esxi:
+      hosts:
+        esxi1:
+          ansible_host: 192.168.1.1
+          esxi_license: ""
+        esxi2:
+          ansible_host: 192.168.1.2
+          esxi_license: ""
+        esxi3:
+          ansible_host: 192.168.1.3
+          esxi_license: ""
+
+
+
+
+    VirtualMachine:
+      hosts:
+        WinSVR-01:
+          vm_name: "test1"
+          set_ip: 192.168.10.1
+          VM_memory: 4096
+
+        WinSVR-02:
+          set_ip: 192.168.10.2
+
+        WinSVR-03:
+          set_ip: 192.168.10.3
+
+      vars:
+        VM_template: Windows-SVR
+
+        VM_memory: 8192
+        VM_cpus: 4
+        VM_hvOn: no
+        VM_bootfirm: bios
+
+        VM_userename: Nyancat86
+        VM_password: Changeme-86
+
+
