@@ -1,0 +1,13 @@
+---
+- name: Configure VSAN on first host
+  vmware_vsan_cluster:
+    hostname: '{{ groups["ansible_host"][0] }}'
+    username: '{{ ansible_user }}'
+    password: '{{ ansible_password }}'
+    validate_certs: no
+  delegate_to: localhost
+  register: vsan_cluster
+
+- name: report vsan
+  debug:
+    msg: '{{ vsan_cluster }}'

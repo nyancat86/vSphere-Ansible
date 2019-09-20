@@ -1,0 +1,15 @@
+---
+- name: Create vm folders on given datacenter
+  vcenter_folder:
+    hostname: '{{ vcenter_hostname }}'
+    username: '{{ vcenter_username }}'
+    password: '{{ vcenter_password }}'
+    datacenter_name: '{{ datacenter_name }}'
+    folder_name: "{{ item }}"
+    folder_type: vm
+    state: present
+    validate_certs: no
+  delegate_to: localhost
+  loop:
+    - VirtualMachine
+    - Templates

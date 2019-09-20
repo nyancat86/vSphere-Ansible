@@ -1,0 +1,47 @@
+---
+- name: Add a new vCenter license
+  vcenter_license:
+    hostname: '{{ vcenter_hostname }}'
+    username: '{{ vcenter_username }}'
+    password: '{{ vcenter_password }}'
+    license: '{{ vcenter_license }}'
+    state: present
+  delegate_to: localhost
+
+
+- name: Create Datacenter
+  vmware_datacenter:
+    hostname: '{{ vcenter_hostname }}'
+    username: '{{ vcenter_username }}'
+    password: '{{ vcenter_password }}'
+    datacenter_name: '{{ datacenter_name }}'
+    validate_certs: no
+    state: present
+  delegate_to: localhost
+
+- name: Create Cluster
+  vmware_cluster:
+    hostname: '{{ vcenter_hostname }}'
+    username: '{{ vcenter_username }}'
+    password: '{{ vcenter_password }}'
+    datacenter_name: '{{ datacenter_name }}'
+    cluster_name: '{{ cluster_name }}'
+    enable_ha: no
+    enable_drs: yes
+    enable_vsan: yes
+    validate_certs: no
+    vsan_auto_claim_storage: yes
+  delegate_to: localhost
+
+
+- name: Add Management Network VM
+  vmware_portgroup:
+    hostname: "{{ vcenter_hostname }}"
+    username: "{{ vcenter_username }}"
+    password: "{{ vcenter_password }}"
+    cluster_name: "{{ cluster_name }}"
+    switch_name: "{{ vswitch_name }}"
+    portgroup_name: "{{ portgroup_name }}"
+    vlan_id: "{{ vlan_id }}"
+    validate_certs: no
+  delegate_to: localhost
