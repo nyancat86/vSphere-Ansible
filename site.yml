@@ -16,5 +16,3 @@
   gather_facts: no
   roles:
     - vCenter-Postfix-Configure
-    - vCenter-Extend-Folder
-    - vCenter-Extend-ResourcePool
