@@ -12,3 +12,20 @@
   delegate_to: localhost
   with_items:
     - "{{ Networks }}"
+
+
+# - name: Deploy Master Image 
+#   vmware_deploy_ovf:
+#     hostname: '{{ vcenter_hostname }}'
+#     username: '{{ vcenter_username }}'
+#     password: '{{ vcenter_password }}'
+#     datacenter: '{{ datacenter }}'
+#     cluster: '{{ cluster }}'
+#     datastore: "vsanDatastore"
+#     name: '{{ item.template }}'
+#     validate_certs: no
+#     power_on: no
+#     ovf: '{{ item.image_path }}'
+#   delegate_to: localhost
+#   with_items:
+#     - '{{ Templates }}'
