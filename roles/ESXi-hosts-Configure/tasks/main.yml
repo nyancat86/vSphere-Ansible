@@ -1,28 +1,4 @@
 ---
-- name: Mount VMFS datastores to ESXi
-  vmware_host_datastore:
-    hostname: '{{ vcenter_hostname }}'
-    username: '{{ vcenter_username }}'
-    password: '{{ vcenter_password }}'
-    datastore_name: '{{ inventory_hostname }}.extend'
-    datastore_type: vmfs
-    vmfs_device_name: 'mpx.vmhba1:C0:T1:L0'
-    vmfs_version: 6
-    esxi_hostname: '{{ ansible_host }}'  
-    state: present
-    validate_certs: no
-  delegate_to: localhost
-
-
-- name: Configure VSAN First
-  vmware_vsan_cluster:
-    hostname: "{{ ansible_host }}"
-    username: '{{ esxi_user }}'
-    password: '{{ esxi_password }}'
-    validate_certs: no
-  delegate_to: localhost
-  register: vsan_cluster
-
 - name: Add ESXi Host to vCenter
   vmware_host:
     hostname: '{{ vcenter_hostname }}'
@@ -37,4 +13,3 @@
     state: present
     validate_certs: no
   delegate_to: localhost
-

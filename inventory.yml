@@ -19,6 +19,8 @@ all:
           esxi_license: ""
 
   vars:
+
+    
     # vCenter onfigure (Sensitive)
     vcenter_hostname: "192.168.1.254"
     vcenter_username: "administrator@nyancat.local"
@@ -28,7 +30,6 @@ all:
     datacenter: "Datacenter1"
     cluster: "Cluster"
     datastore_cluster: "Datastore_Cluster"
-    vSAN_datastore: "vsanDatastore"
 
     # ESXi configure (Sensitive)
     esxi_user:        "root"
@@ -66,9 +67,7 @@ all:
 
     # VirtualMachine Customize
     # Default value
-    Templates:
-      - template: "CentOS"
-        image_path: "./template/CentOS-7.0-amd64-minimal.ova"
+    VM_template: Windows-SVR
     VM_memory: 8192
     VM_cpus: 4
     VM_hvOn: no
@@ -77,12 +76,11 @@ all:
     VM_password: Changeme-86
     # Custom value
     Resources:
-      - vm_name: "CentOS"
+      - vm_name: "WinSVR-01"
         set_ip: 192.168.10.1
-        template: Windows-SVR
       - vm_name: "WinSVR-02"
         set_ip: 192.168.10.2
-        template: Windows-SVR
-   
+      - vm_name: "WinSVR-03"
+        set_ip: 192.168.10.3
 
 
