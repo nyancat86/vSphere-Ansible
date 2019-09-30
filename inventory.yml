@@ -1,25 +1,32 @@
 # This is example setting (Sorry... no check)
 # Please set Ansible Vault, if you custom for your site.
+
 all:
+###########################
+# Host inventory
+###########################
   hosts:
     vcsa:
-      ansible_host: 192.168.1.254
-      vcenter_license:  "f600d-21ae3-5592b-249e0-cc341"
-  children:
-    esxi:
-      hosts:
-        esxi1:
-          ansible_host: 192.168.1.201
-          esxi_license: ""
-        esxi2:
-          ansible_host: 192.168.1.202
-          esxi_license: ""
-        esxi3:
-          ansible_host: 192.168.1.203
-          esxi_license: ""
+      ansible_host:       '192.168.1.254'
+      vcenter_license:    'f600d-21ae3-5592b-249e0-cc341'
+    esxi1:
+      ansible_host:       '192.168.1.201'
+      esxi_license:       ''
+    esxi2:
+      ansible_host:       '192.168.1.202'
+      esxi_license:       ''
+    esxi3:
+      ansible_host:       '192.168.1.203'
+      esxi_license:       ''
+    esxi4:
+      ansible_host:       '192.168.1.204'
+      esxi_license:       ''
+    esxi5:
+      ansible_host:       '192.168.1.205'
+      esxi_license:       ''
 
   vars:
-    # vCenter onfigure (Sensitive)
+    # vCenter configure (Sensitive)
     vcenter_hostname: "192.168.1.254"
     vcenter_username: "administrator@nyancat.local"
     vcenter_password: "Changeme-86"
@@ -27,16 +34,12 @@ all:
 
     datacenter: "Datacenter1"
     cluster: "Cluster"
-    datastore_cluster: "Datastore_Cluster"
-    vSAN_datastore: "vsanDatastore"
+    datastore: "Datastore_Cluster" # Set Datastore/DatastoreCluster/vSAN names
 
     # ESXi configure (Sensitive)
     esxi_user:        "root"
     esxi_password:    "Changeme-86"
     
-
-
-
     # Global configure
     inventory_dns: 
       - 192.168.1.100
@@ -64,25 +67,58 @@ all:
         vlan_id: 1
         state: "absent"
 
-    # VirtualMachine Customize
-    # Default value
-    Templates:
-      - template: "CentOS"
-        image_path: "./template/CentOS-7.0-amd64-minimal.ova"
-    VM_memory: 8192
-    VM_cpus: 4
-    VM_hvOn: no
-    VM_bootfirm: bios
-    VM_userename: Nyancat86
-    VM_password: Changeme-86
-    # Custom value
-    Resources:
-      - vm_name: "CentOS"
-        set_ip: 192.168.10.1
-        template: Windows-SVR
-      - vm_name: "WinSVR-02"
-        set_ip: 192.168.10.2
-        template: Windows-SVR
-   
 
+###########################
+# Group inventory
+###########################
+  children:
+    esxi:
+      hosts:
+        esxi1:
+        esxi2:
+    vsan:
+      hosts:
+        esxi3:
+        esxi4:
+        esxi5:
+    vmlist:
+      hosts:
+        Windows2016-1: # inventory_hostname
+          ansible_host:   '192.168.10.1'
+          template_vm:    'Windows-SVR'
+          memory_mb:      '8192'
+          num_cpus:       '4'
+          hvOn:           'no'
+          bootfirm:       'bios'
+          userename:      'Nyancat86'
+          password:       'Changeme-86'
 
+        Windows2016-2: # inventory_hostname
+          ansible_host:   '192.168.10.2'
+          template:       'Windows-SVR'
+
+      vars:
+        # Default values
+
+        # Hardware
+        memory:           '8192'
+        cpus:             '4'
+        hvOn:             'no'
+        bootfirm:         'bios'
+
+        # OS config
+        userename:        'Nyancat86'
+        password:         'Changeme-86'
+
+        # Networks
+        device_type:      'e1000e'
+        netmask:          '255.255.255.0'
+        gateway:          '192.168.1.1'
+        dns_servers:
+          - 
+
+        Templates:
+          - template:     'CentOS'
+            image_path:   './template/CentOS-7.0-amd64-minimal.ova'
+
+ 

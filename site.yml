@@ -5,6 +5,12 @@
     - vCenter-Prefix-Configure
 
 
+# - hosts: vsan
+#   connection: local
+#   gather_facts: no
+#   roles:
+#     - vSAN-hosts-Configure
+
 - hosts: esxi
   connection: local
   gather_facts: no
@@ -16,3 +22,10 @@
   gather_facts: no
   roles:
     - vCenter-Postfix-Configure
+
+
+- hosts: vmlist
+  connection: local
+  gather_facts: no
+  roles:
+    - vCenter-VirtualMachine
