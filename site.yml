@@ -2,7 +2,9 @@
   connection: local
   gather_facts: no
   roles:
-    - vCenter-Prefix-Configure
+   # - vCenter-License
+    - vCenter-Datacenter
+    - vCenter-Cluster
 
 
 # - hosts: vsan
@@ -15,16 +17,17 @@
   connection: local
   gather_facts: no
   roles:
-    - ESXi-hosts-Configure
+    - ESXi-add_host
 
 - hosts: vcsa
   connection: local
   gather_facts: no
   roles:
-    - vCenter-Postfix-Configure
+    - vCenter-Portgroup
+    - vCenter-ResourcePool
+    - vCenter-Folder
 
-
-- hosts: vmlist
+- hosts: vcsa
   connection: local
   gather_facts: no
   roles:

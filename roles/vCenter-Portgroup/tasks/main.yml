@@ -1,3 +1,4 @@
+---
 - name: Add Management Network VM
   vmware_portgroup:
     hostname: "{{ vcenter_hostname }}"
