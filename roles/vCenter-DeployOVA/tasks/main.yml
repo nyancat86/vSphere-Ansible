@@ -1,0 +1,17 @@
+---
+- name: Deploy Master Image 
+  vmware_deploy_ovf:
+    hostname: '{{ vcenter_hostname }}'
+    username: '{{ vcenter_username }}'
+    password: '{{ vcenter_password }}'
+    datacenter: '{{ datacenter }}'
+    cluster: '{{ cluster }}'
+    datastore: "datastore1"
+    name: '{{ item.template }}'
+    #folder: '{{ item.save_as }}'
+    power_on: no
+    ovf: '{{ item.image_path }}'
+    validate_certs: no
+  delegate_to: localhost
+  with_items:
+    - '{{ Templates }}'
