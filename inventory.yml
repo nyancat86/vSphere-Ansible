@@ -2,54 +2,87 @@
 # Please set Ansible Vault, if you custom for your site.
 all:
   hosts:
+    # VCSA 
+    #################################################
     vcsa:
-      ansible_host:       '192.168.1.254'
-      vcenter_license:    'f600d-21ae3-5592b-249e0-cc341'
-    esxi01:
-      ansible_host:       '192.168.1.201'
-      esxi_license:       ''
-    esxi02:
-      ansible_host:       '192.168.1.202'
-      esxi_license:       ''
-    esxi03:
-      ansible_host:       '192.168.1.203'
-      esxi_license:       ''
-    Windows2016-1:
-      ansible_host:       '192.168.10.1'
-    Windows2016-1:
-      ansible_host:       '192.168.10.2'
+      ansible_host:               '192.168.1.254'
+      vcenter_license:            'f600d-21ae3-5592b-249e0-cc341'
   children:
+    # ESXi Configuration
+    #################################################
     esxi:
       hosts:
         esxi01:
+          ansible_host:           '192.168.1.201'
+          esxi_license:           ''
         esxi02:
+          ansible_host:           '192.168.1.202'
+          esxi_license:           ''
         esxi03:
+          ansible_host:           '192.168.1.203'
+          esxi_license:           ''
+      vars:
+        esxi_user:                'root'
+        esxi_password:            'Changeme-86'
+
+    # Virtual Machine Configuration
+    #################################################
+    virtualmachine:
+      hosts:
+        Windows2016-1:
+          ansible_host:           '192.168.1.190'
+          template:               'WindowsServer2016'
+          memory_mb:              '8192'
+          num_cpus:               '4'
+          hvOn:                   'no'
+          bootfirm:               'bios'
+          userename:              'Nyancat86'
+          password:               'Changeme-86'
 
 
+      vars:
+        # Default VirtualMachineSettings
+        template:                 'WindowsServer2016'
+        memory_mb:                '8192'
+        num_cpus:                 '4'
+        hvOn:                     'no'
+        bootfirm:                 'bios'
 
-# Global Setting (Group vars)      
+        userename:                'Nyancat86'
+        password:                 'Changeme-86'
+
+        # OS login config
+        userename:                'Nyancat86'
+        password:                 'Changeme-86'
+
+        # Networks
+        device_type:              'e1000e'
+        netmask:                  '255.255.255.0'
+        gateway:                  '192.168.1.1'
+        dns_servers:
+          - 192.168.1.100
+
+
+  # Global Setting (Group vars)
+  #################################################
   vars:
     # vCenter configure (Sensitive)
-    vcenter_hostname: "192.168.1.254"
-    vcenter_username: "administrator@nyancat.local"
-    vcenter_password: "Changeme-86"
-    domain_name: "nyancat.local"
+    vcenter_hostname:             "192.168.1.254"
+    vcenter_username:             "administrator@nyancat.local"
+    vcenter_password:             "Changeme-86"
+    domain_name:                  "nyancat.local"
 
-    datacenter: "Datacenter1"
-    cluster: "Cluster"
-    # Set (Datastore / DatastoreCluster / vSAN) name
-    datastore: "Datastore_Cluster" 
+    datacenter:                   "Datacenter1"
+    cluster:                      "Cluster"
+    datastore:                    "Datastore_Cluster"     # Set (Datastore / DatastoreCluster / vSAN) name
 
-    # ESXi configure (Sensitive)
-    esxi_user:        "root"
-    esxi_password:    "Changeme-86"
-    
     # Global configure
     inventory_dns: 
       - 192.168.1.100
       - 192.168.1.101
 
-    # Create Folder (type: vm / datacenter)
+    # Folder Configure (type: vm / datacenter)
+    #################################################
     Folders:
       - name: "VirtualMachine"
         type: "vm"
@@ -59,9 +92,13 @@ all:
         type: "vm"
         state: "present"
 
+    # ResourcePool Configure
+    #################################################
     ResourcePools:
       - name: "Critical"
 
+    # PortGroup Configure
+    #################################################
     Networks:
       - pg_name: "VM Network"
         vswitch: "vSwitch0"
@@ -78,29 +115,11 @@ all:
         vlan_id: 1
         state: "absent"
         
-        # Default values
-        template:       'Windows-SVR'
-        memory_mb:      '8192'
-        num_cpus:       '4'
-        hvOn:           'no'
-        bootfirm:       'bios'
-        userename:      'Nyancat86'
-        password:       'Changeme-86'
 
-        # OS login config
-        userename:        'Nyancat86'
-        password:         'Changeme-86'
 
-        # Networks
-        device_type:      'e1000e'
-        netmask:          '255.255.255.0'
-        gateway:          '192.168.1.1'
-        dns_servers:
-          - 192.168.1.100
-
-      #   Templates:
-      #     - template:     'CentOS'
-      #       image_path:   './template/CentOS-7.0-amd64-minimal.ova'
+    Templates:
+      - template:     'WindowsServer2016'
+        image_path:   './ova/WindowsServer2016.ovf'
 
 
 

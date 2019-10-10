@@ -26,9 +26,11 @@
     - vCenter-Portgroup
     - vCenter-ResourcePool
     - vCenter-Folder
+    - vCenter-DeployOVA
 
-- hosts: vcsa
+- hosts: virtualmachine
   connection: local
   gather_facts: no
   roles:
+    - vCenter-VirtualMachine
     - vCenter-VirtualMachine

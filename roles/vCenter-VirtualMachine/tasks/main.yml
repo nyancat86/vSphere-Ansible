@@ -2,7 +2,7 @@
 - name: Clone a virtual machine from Windows template and customize
   vmware_guest:
     # Configure Target
-    hostname:                 '{{ vcsa.vcenter_hostname }}'
+    hostname:                 '{{ vcenter_hostname }}'
     username:                 '{{ vcenter_username }}'
     password:                 '{{ vcenter_password }}'
     validate_certs:           'no'
@@ -13,7 +13,7 @@
 
     # Configure Virtual Machine over view
     name:                     '{{ inventory_hostname }}'
-    template:                 '{{ template_vm }}'
+    template:                 '{{ template }}'
     hardware:
       memory_mb:              '{{ memory_mb }}'
       nested_virt:            '{{ hvOn }}'
@@ -35,7 +35,7 @@
 
     customization:
       # productid:            ''
-      autologon:              'no'
+      autologon:              False
       ## Login customize ##
       fullname:               '{{ userename }}'
       password:               '{{ password }}'
