@@ -1,0 +1,43 @@
+
+# - hosts: vcsa
+#   connection: local
+#   gather_facts: no
+#   roles:
+#     #- vCenter-Portgroup
+#     #- vCenter-ResourcePool
+#     - vCenter-Folder
+
+
+# - hosts: vcsa
+#   connection: local
+#   gather_facts: no
+#   roles:
+#     #- vCenter-Portgroup
+#     #- vCenter-ResourcePool
+#     #- vCenter-Folder
+#     #- vCenter-DeployOVA
+
+- hosts: 
+    - test
+  gather_facts: no
+  connection: localhost
+  roles:
+    - vCenter-VirtualMachine
+    # - vCenter-VirtualMachine
+    # - vCenter-VM_Disk
+    - vCenter-VM_NIC
+    - vCenter-VM_poweron
+
+- hosts: 
+    - test
+  gather_facts: no
+  roles:
+    - wait_10min
+
+
+- hosts: 
+    - test
+  gather_facts: yes
+  roles:
+    - win_partition
+    #- win_Run_command

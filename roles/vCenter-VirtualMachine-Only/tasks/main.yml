@@ -17,16 +17,6 @@
     name:                     '{{ inventory_hostname }}'
 
     template:                 '{{ template }}'
-    hardware:
-      memory_mb:              '{{ memory_mb }}'
-      nested_virt:            '{{ hvOn }}'
-      num_cpus:               '{{ num_cpus }}'
-      boot_firmware:          '{{ bootfirm }}'
-
-      
-    disk:
-      - size_gb:              '{{ disk_size }}'
-        datastore:            '{{ datastore }}'
     networks:
     - name:                   '{{ port_group }}'
       device_type:            '{{ device_type }}'
@@ -38,8 +28,6 @@
       dns_servers:
       - 10.52.1.50
       - 10.52.1.51
-      #- vlan: 0
-      #type: dhcp
 
     customization:
       # productid:            ''
@@ -63,4 +51,3 @@
         - winrm set winrm/config/service/auth @{Basic="true"}
         - winrm set winrm/config/service @{AllowUnencrypted="true"}
   delegate_to: localhost
-

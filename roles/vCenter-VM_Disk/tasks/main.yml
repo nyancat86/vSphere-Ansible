@@ -1,0 +1,16 @@
+- name: Append Disk Task
+  vmware_guest_disk:
+    hostname: "{{ vcenter_hostname }}"
+    username: "{{ vcenter_username }}"
+    password: "{{ vcenter_password }}"
+    datacenter: "{{ datacenter }}"
+    validate_certs: no
+    name: '{{ inventory_hostname }}'
+    disk:
+      - size_gb:          '{{ append_disk_size }}'
+        datastore:        '{{ datastore }}'
+        state:            'present'
+        scsi_controller:  0
+        unit_number:      1
+  delegate_to: localhost
+  register: disk_facts

@@ -1,0 +1,6 @@
+---
+- name: "Create partition D:"
+  win_partition:
+    drive_letter: D
+    partition_size: -1
+    disk_number: 1

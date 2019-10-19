@@ -1,0 +1,8 @@
+- name: run once command 
+  win_command: "{{ item.exec }}"
+  args:
+    stdin: "{{ item.args }}"
+  with_items:
+    - "{{ command }}"
+
+

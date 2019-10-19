@@ -1,0 +1,25 @@
+---
+- name: reConfigure Interface 
+  vmware_guest:
+    # Configure Target
+    state:                    'present'
+    hostname:                 '{{ vcenter_hostname }}'
+    username:                 '{{ vcenter_username }}'
+    password:                 '{{ vcenter_password }}'
+    validate_certs:           'no'
+    datacenter:               '{{ datacenter }}'
+    datastore:                '{{ datastore }}'
+    cluster:                  '{{ cluster }}'
+
+    name:                     '{{ inventory_hostname }}'        
+    networks:
+    - name:                   '{{ port_group }}'
+      device_type:            '{{ device_type }}'
+      ip:                     '{{ ansible_host }}'
+      netmask:                '{{ netmask }}'
+      gateway:                '{{ gateway }}'
+      domain:                 '{{ domain_name }}'
+      start_connected: true
+
+  delegate_to: localhost
+

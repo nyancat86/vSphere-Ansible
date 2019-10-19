@@ -5,81 +5,748 @@ all:
     # VCSA 
     #################################################
     vcsa:
-      ansible_host:               '192.168.1.254'
-      vcenter_license:            'f600d-21ae3-5592b-249e0-cc341'
+      # ansible_host:                 '192.168.1.254'
+      # vcenter_license:              'f600d-21ae3-5592b-249e0-cc341'
+      ansible_host:                 '10.40.3.101'
+
+
   children:
-    # ESXi Configuration
-    #################################################
+  # ESXi Configuration
+  #################################################
     esxi:
       hosts:
         esxi01:
-          ansible_host:           '192.168.1.201'
-          esxi_license:           ''
+          ansible_host:             '192.168.1.201'
+          esxi_license:             ''
         esxi02:
-          ansible_host:           '192.168.1.202'
-          esxi_license:           ''
+          ansible_host:             '192.168.1.202'
+          esxi_license:             ''
         esxi03:
-          ansible_host:           '192.168.1.203'
-          esxi_license:           ''
+          ansible_host:             '192.168.1.203'
+          esxi_license:             ''
       vars:
-        esxi_user:                'root'
-        esxi_password:            'Changeme-86'
+        esxi_user:                  'root'
+        esxi_password:              'Changeme-86'
 
-    # Virtual Machine Configuration
+
     #################################################
-    virtualmachine:
+    # test
+    #################################################
+    test:
       hosts:
-        Windows2016-1:
-          ansible_host:           '192.168.1.190'
-          template:               'WindowsServer2016'
-          memory_mb:              '8192'
-          num_cpus:               '4'
-          hvOn:                   'no'
-          bootfirm:               'bios'
-          userename:              'Nyancat86'
-          password:               'Changeme-86'
-
+        test01:
+          ansible_host:             '10.40.3.111'
+          datastore:                'datastore1'
+        test02:
+          ansible_host:             '10.40.3.112'
+          datastore:                'datastore1 (1)'
+        test03:
+          ansible_host:             '10.40.3.113'
+          datastore:                'datastore1 (2)'
+        test04:
+          ansible_host:             '10.40.3.114'
+          datastore:                'datastore1 (3)'
+        test05:
+          ansible_host:             '10.40.3.115' 
+          datastore:                'datastore1 (4)'
+        test06:
+          ansible_host:             '10.40.3.116'
+          datastore:                'datastore1 (5)'
+        test07:
+          ansible_host:             '10.40.3.117'
+          datastore:                'datastore1 (6)'
+        test08:
+          ansible_host:             '10.40.3.118'
+          datastore:                'datastore1 (7)'
+        test09:
+          ansible_host:             '10.40.3.119'
+          datastore:                'datastore1 (8)'
+        test10:
+          ansible_host:             '10.40.3.120'
+          datastore:                'datastore1 (9)'
+        test11:
+           ansible_host:            '10.40.3.121'
+           datastore:               'datastore1 (10)'
 
       vars:
-        # Default VirtualMachineSettings
-        template:                 'WindowsServer2016'
-        memory_mb:                '8192'
-        num_cpus:                 '4'
-        hvOn:                     'no'
-        bootfirm:                 'bios'
+        # Hardware Settings
+        ###############################################
+        num_cpus:                   '2'
+        memory_mb:                  '4096'
+        hvOn:                       'no'
+        cluster:                    'Cluster'
+        datastore:                  'datastore'
+        #disk_size:                  '120'
+        append_disk_size:           '1'
 
-        userename:                'Nyancat86'
-        password:                 'Changeme-86'
+        # Template
+        ###############################################
+        template:                   'template20191018'
 
-        # OS login config
-        userename:                'Nyancat86'
-        password:                 'Changeme-86'
+    #################################################
+    # Skype_Frontend
+    #################################################
+    Skype_Frontend:
+      hosts:
+        MCTE1SFG01:
+          ansible_host:             ''
+        MCTE1SFG02:
+          ansible_host:             ''
+        MCTE1SFG03:
+          ansible_host:             ''
+        MCTE1SFG04:
+          ansible_host:             ''
+        MCTE1SFG05:
+          ansible_host:             ''
+        MCTE1SFG06:
+          ansible_host:             ''
+        MCTE1SFG07:
+          ansible_host:             ''
+        MCTE1SFG08:
+          ansible_host:             ''
+        MCTE1SFG09:
+          ansible_host:             ''
+        MCTE1SFG10:
+          ansible_host:             ''    
+      vars:
+        # Hardware Settings
+        ###############################################
+        num_cpus:                   '12'
+        memory_mb:                  '32768'
+        hvOn:                       'no'
+        bootfirm:                   'bios'
 
-        # Networks
-        device_type:              'e1000e'
-        netmask:                  '255.255.255.0'
-        gateway:                  '192.168.1.1'
-        dns_servers:
-          - 192.168.1.100
+        disk_size:                  '120'
+        append_disk_size:           '50'
+
+        # Template
+        ###############################################
+        template:                   'WindowsServer2016'
+
+    #################################################
+    # Skype_Backend
+    #################################################
+    Skype_Backend:
+      hosts:
+        MCTE1SBG01:
+          ansible_host:             ''
+        MCTE1SBG02:
+          ansible_host:             ''
+      vars:
+        # Hardware Settings
+        ###############################################
+        num_cpus:                   '12'
+        memory_mb:                  '32768'
+        hvOn:                       'no'
+        disk_size:                  '120'
+        append_disk_size:           '4800'
 
 
-  # Global Setting (Group vars)
-  #################################################
+        # Template
+        ###############################################
+        template:                   'WindowsServer2016'
+
+    #################################################
+    # Skype Witness
+    #################################################
+    Skype_Witness:
+      hosts:
+        MCTE1SWG01:
+          ansible_host:             ''
+      vars:
+        # Hardware Settings
+        ###############################################
+        num_cpus:                   '4'
+        memory_mb:                  '8192'
+        hvOn:                       'no'
+
+        disk_size:                  '100'
+        # Template
+        ###############################################
+        template:                   'WindowsServer2016'
+    
+    #################################################
+    # Office Online
+    #################################################
+    Office_Online:
+      hosts:
+        MCTE1OOG01:
+          ansible_host:             ''
+        MCTE1OOG02:
+          ansible_host:             ''
+      vars:
+        # Hardware Settings
+        ###############################################
+        num_cpus:                   '8'
+        memory_mb:                  '32768'
+
+        hvOn:                       'no'
+        disk_size:                  '100'
+        append_disk_size:           '50'
+
+        # Template
+        ###############################################
+        template:                   'WindowsServer2016'
+    
+    #################################################
+    # Skype Edge
+    #################################################
+    Skype_Edge:
+      hosts:
+        MCTE1SEG01:
+          ansible_host:             ''
+        MCTE1SEG02:
+          ansible_host:             ''
+      vars:
+        # Hardware Settings
+        ###############################################
+        num_cpus:                   '8'
+        memory_mb:                  '16384'
+        disk_size:                  '100'
+        hvOn:                       'no'
+        # Template
+        ###############################################
+        template:                   'WindowsServer2016'
+
+    #################################################
+    # Skype_Frontend Secure
+    #################################################
+    Skype_Frontend_Secure:
+      hosts:
+        MCTE1SFH01:
+          ansible_host:             ''
+        MCTE1SFH02:
+          ansible_host:             ''
+        MCTE1SFH03:
+          ansible_host:             ''
+        MCTE1SFH04:
+          ansible_host:             ''
+        MCTE1SFH05:
+          ansible_host:             ''
+        MCTE1SFH06:
+          ansible_host:             ''
+        MCTE1SFH07:
+          ansible_host:             ''
+        MCTE1SFH08:
+          ansible_host:             ''    
+      vars:
+        # Hardware Settings
+        ###############################################
+        num_cpus:                   '12'
+        memory_mb:                  '32768'
+        hvOn:                       'no'
+
+        disk_size:                  '120'
+        append_disk_size:           '50'
+        # Template
+        ###############################################
+        template:                   'WindowsServer2016'
+    
+    #################################################
+    # Skype_Backend_Secure
+    #################################################
+    Skype_Backend_Secure:
+      hosts:
+        MCTE1SBH01:
+          ansible_host:             ''
+        MCTE1SBH02:
+          ansible_host:             ''
+      vars:
+        # Hardware Settings
+        ###############################################
+        num_cpus:                   '12'
+        memory_mb:                  '32768'
+        hvOn:                       'no'
+
+        disk_size:                  '120'
+        append_disk_size:           '4200'
+        # Template
+        ###############################################
+        template:                   'WindowsServer2016'
+
+    #################################################
+    # Skype Witnes Secure
+    #################################################
+    Skype_Witness_Secure:
+      hosts:
+        MCTE1SWH01:
+          ansible_host:             ''
+      vars:
+        # Hardware Settings
+        ###############################################
+        num_cpus:                   '4'
+        memory_mb:                  '8192'
+        hvOn:                       'no'
+
+        disk_size:                  '100'
+
+        # Template
+        ###############################################
+        template:                   'WindowsServer2016'
+
+    #################################################
+    # Office Online Secure
+    #################################################
+    Office_Online_Secure:
+      hosts:
+        MCTE1OOH01:
+          ansible_host:             ''
+        MCTE1OOH02:
+          ansible_host:             ''
+      vars:
+        # Hardware Settings
+        ###############################################
+        num_cpus:                   '8'
+        memory_mb:                  '32768'
+        hvOn:                       'no'
+
+        disk_size:                  '100'
+        append_disk_size:           '50'        
+        
+        # Template
+        ###############################################
+        template:                   'WindowsServer2016'
+    
+    #################################################
+    # Skype Edge Secure
+    #################################################
+    Skype_Edge_Secure:
+      hosts:
+        MCTE1SEH01:
+          ansible_host:             ''
+        MCTE1SEH02:
+          ansible_host:             ''
+      vars:
+        # Hardware Settings
+        ###############################################
+        num_cpus:                   '8'
+        memory_mb:                  '16384'
+        hvOn:                       'no'
+        disk_size:                  '100'
+ 
+        # Template
+        ###############################################
+        template:                   'WindowsServer2016'
+
+    #################################################
+    # Management ID
+    #################################################
+    Management_ID:
+      hosts:
+        MCTE1IDM01:
+          ansible_host:             ''
+          num_cpus:                 '4'
+          memory_mb:                '16384'
+          append_disk_size:         '1500'
+        MCTE3IDM01:
+          ansible_host:             ''
+          num_cpus:                 '2'
+          memory_mb:                '8192'
+          append_disk_size:         '500'
+        MCTE5IDM01:
+          ansible_host:             ''
+          num_cpus:                 '4'
+          memory_mb:                '8192'
+          append_disk_size:         '500'
+      vars:
+        # Hardware Settings
+        ###############################################
+        hvOn:                       'no'
+        disk_size:                  '100'
+
+        # Template
+        ###############################################
+        template:                   'WindowsServer2016'
+    
+    #################################################
+    # Management Address
+    #################################################
+    Management_Address:
+      hosts:
+        # main 01
+        #######################
+        MCTE1ABS01:
+          ansible_host:             ''
+          num_cpus:                 '10'
+          memory_mb:                '20480'
+          disk_size:                '100'
+          append_disk_size:         '500'
+        MCTE1ABS02:
+          ansible_host:             ''
+          num_cpus:                 '10'
+          memory_mb:                '20480'
+          disk_size:                '100'
+          append_disk_size:         '500'
+        # main 02
+        #######################
+        MCTE1ABS03:
+          ansible_host:             ''
+          num_cpus:                 '10'
+          memory_mb:                '40960'
+          disk_size:                '100'
+          append_disk_size:         '2000'
+        MCTE1ABS04:
+          ansible_host:             ''
+          num_cpus:                 '10'
+          memory_mb:                '40960'
+          disk_size:                '100'
+          append_disk_size:         '2000'
+        # devel
+        #######################
+        MCTE3ABS01:
+          ansible_host:             ''
+          num_cpus:                 '2'
+          memory_mb:                '8192'
+          disk_size:                '100'
+          append_disk_size:         '2000'
+
+        MCTE5ABS01:
+          ansible_host:             ''
+          num_cpus:                 '2'
+          memory_mb:                '8192'
+          disk_size:                '100'
+          append_disk_size:         '2000'
+      vars:
+        # Hardware Settings
+        ###############################################
+        hvOn:                       'no'
+        # Template
+        ###############################################
+        template:                   'WindowsServer2016'
+    
+    #################################################
+    # RMS
+    #################################################
+    RMS:
+      hosts:
+        MCTE1RMS01:
+          ansible_host:             ''
+        MCTE1RMS02:
+          ansible_host:             ''
+        MCTE1IDM01:
+          ansible_host:             ''
+      vars:
+        # Hardware Settings
+        ###############################################
+        num_cpus:                   '4'
+        memory_mb:                  '4096'
+        hvOn:                       'no'
+        #disk_size:                 '' 
+        # Template
+        ###############################################
+        template:                   'WindowsServer2016-200'
+    
+    #################################################
+    # Edge Server
+    #################################################
+    Edge_Server:
+      hosts:
+        MCTE1EDG01:
+          ansible_host:             ''
+        MCTE1EDG02:
+          ansible_host:             ''
+        MCTE1EDG03:
+          ansible_host:             ''
+        MCTE1EDG04:
+          ansible_host:             ''
+        MCTE1EDG05:
+          ansible_host:             ''
+        MCTE1EDG06:
+          ansible_host:             ''
+        MCTE1EDG07:
+          ansible_host:             ''
+        MCTE1EDG08:
+          ansible_host:             ''
+      vars:
+        # Hardware Settings
+        ###############################################
+        num_cpus:                   '8'
+        memory_mb:                  '131072'
+        hvOn:                       'no'
+        disk_size:                  '300'
+        append_disk_size:           '1000'
+      
+        # Template
+        ###############################################
+        template:                   'WindowsServer2016-300'
+    
+    #################################################
+    # Exchange HUB Server
+    #################################################
+    Exchange_HUB_Server:
+      hosts:
+        MCTE1HUB01:
+          ansible_host:             ''
+        MCTE1HUB02:
+          ansible_host:             ''
+        MCTE1HUB03:
+          ansible_host:             ''
+        MCTE1HUB04:
+          ansible_host:             ''
+        MCTE1HUB05:
+          ansible_host:             ''
+        MCTE1HUB06:
+          ansible_host:             ''
+        MCTE1HUB07:
+          ansible_host:             ''
+        MCTE1HUB08:
+          ansible_host:             ''
+      vars:
+        # Hardware Settings
+        ###############################################
+        num_cpus:                   '8'
+        memory_mb:                  '131072'
+        hvOn:                       'no'
+        disk_size:                  '300'
+        append_disk_size:           '1000'
+        # Template
+        ###############################################
+        template:                   'WindowsServer2016-300'
+    
+    #################################################
+    # Exchange Watch Server
+    #################################################
+    Exchange_Watch_Server:
+      hosts:
+        MCTE1WTN01:
+          ansible_host:             ''
+      vars:
+        # Hardware Settings
+        ###############################################
+        num_cpus:                   '4'
+        memory_mb:                  '8192'
+        hvOn:                       'no'
+        disk_size:                  '200' 
+        # Template
+        ###############################################
+        template:                   'WindowsServer2016-300'
+    
+    #################################################
+    # Job Manage Server
+    #################################################
+    Job_Manage_Server:
+      hosts:
+        MCTE1JOB01:
+          ansible_host:             ''
+        MCTE1JOB02:
+          ansible_host:             ''
+      vars:
+        # Hardware Settings
+        ###############################################
+        num_cpus:                   '10'
+        memory_mb:                  '30720'
+        hvOn:                       'no'
+        disk_size:                  '100'
+        append_disk_size:           '800'
+        # Template
+        ###############################################
+        template:                   'WindowsServer2016-100'
+    
+    #################################################
+    # Management Log Server
+    #################################################
+    Management_Log_Server:
+      hosts:
+        MCTE1LOG01:
+          ansible_host:             ''
+
+      vars:
+        # Hardware Settings
+        ###############################################
+        num_cpus:                   '5'
+        memory_mb:                  '12288'
+        hvOn:                       'no'
+        disk_size:                  '100'
+        append_disk_size:           '7729'
+        # Template
+        ###############################################
+        template:                   'WindowsServer2016-100'
+    
+    #################################################
+    # WSUS Server
+    #################################################
+    WSUS_Server:
+      hosts:
+        MCTE1WSU01:
+          ansible_host:             ''
+      vars:
+        # Hardware Settings
+        ###############################################
+        num_cpus:                   '6'
+        memory_mb:                  '9216'
+        hvOn:                       'no'
+        disk_size:                  '100'
+        append_disk_size:           '1180'
+        # Template
+        ###############################################
+        template:                   'WindowsServer2016-100'
+    
+    #################################################
+    # Azure AD Connect Server
+    #################################################
+    Azure_AD_Connect_Server:
+      hosts:
+        MCTE1AAC01:
+          ansible_host:             ''
+      vars:
+        # Hardware Settings
+        ###############################################
+        num_cpus:                   '4'
+        memory_mb:                  '32768'
+        hvOn:                       'no'
+        disk_size:                  '100'
+        append_disk_size:           '900'
+        # Template
+        ###############################################
+        template:                   'WindowsServer2016-100'
+
+    #################################################
+    # ADFS Server
+    #################################################
+    ADFS_Server:
+      hosts:
+        MCTE1ADF01:
+          ansible_host:             ''
+        MCTE1ADF02:
+          ansible_host:             ''
+        MCTE1ADF03:
+          ansible_host:             ''
+        MCTE1ADF04:
+          ansible_host:             ''
+        MCTE1ADF05:
+          ansible_host:             ''
+      vars:
+        # Hardware Settings
+        ###############################################
+        num_cpus:                   '8'
+        memory_mb:                  '8192'
+        hvOn:                       'no'
+        disk_size:                  '300'
+        #append_disk_size:          '1000'
+        # Template
+        ###############################################
+        template:                   'WindowsServer2016-300'
+
+    #################################################
+    # Virt Management Server
+    #################################################
+    Virt_Management_Server:
+      hosts:
+        MCTE1VMM01:
+          ansible_host:             ''
+        MCTE1VMM02:
+          ansible_host:             ''
+      vars:
+        # Hardware Settings
+        ###############################################
+        num_cpus:                   '2'
+        memory_mb:                  '8192'
+        hvOn:                       'no'
+        disk_size:                  '100'
+        append_disk_size:           '300'
+        # Template
+        ###############################################
+        template:                   'WindowsServer2016-300'
+
+    #################################################
+    # Storage Management Server
+    #################################################
+    Storage_Management_Server:
+      hosts:
+        MCTE1STM01:
+          ansible_host:             '10.40.3.14'
+
+      vars:
+        # Hardware Settings
+        ###############################################
+        num_cpus:                   '4'
+        memory_mb:                  '16384'
+        hvOn:                       'no'
+        disk_size:                  '150'
+        append_disk_size:           '150'
+
+        # Template
+        ###############################################
+        template:                   'template20191018'
+
+    #################################################
+    # Skype Photo Server
+    #################################################
+    Skype_Photo_Server:
+      hosts:
+        MCTE1PIC01:
+          ansible_host:             ''
+
+      vars:
+        # Hardware Settings
+        ###############################################
+        num_cpus:                   '2'
+        memory_mb:                  '4096'
+        hvOn:                       'no'
+        disk_size:                  '200'
+        # Template
+        ###############################################
+        template:                   'WindowsServer2016-300'
+
+
+#################################################
+# Global Setting (All Group vars)
+#################################################
   vars:
-    # vCenter configure (Sensitive)
-    vcenter_hostname:             "192.168.1.254"
-    vcenter_username:             "administrator@nyancat.local"
-    vcenter_password:             "Changeme-86"
-    domain_name:                  "nyancat.local"
+    ## vCenter configure (Sensitive) ##
+    # vcenter_hostname:               '192.168.1.254'
+    # vcenter_username:               'administrator@nyancat.local'
+    # vcenter_password:               'Changeme-86'
+    # domain_name:                    'nyancat.local'
 
-    datacenter:                   "Datacenter1"
-    cluster:                      "Cluster"
-    datastore:                    "Datastore_Cluster"     # Set (Datastore / DatastoreCluster / vSAN) name
+    vcenter_hostname:               '10.40.3.101'
+    vcenter_username:               'administrator@vsphere.local'
+    vcenter_password:               'PA$$wd1910'
 
-    # Global configure
-    inventory_dns: 
-      - 192.168.1.100
-      - 192.168.1.101
+    datacenter:                     'Datacenter'
+    cluster:                        'Cluster'
+    datastore:                      'Datastore1'       # Set (Datastore / DatastoreCluster / vSAN) name
+
+
+    # Hardware Settings
+    ###############################################
+    num_cpus:                       '8'
+    num_cpu_cores_per_socket:       '1'
+    memory_mb:                      '16384'
+    hvOn:                           'no'
+    bootfirm:                       'bios'
+
+    disk_size:                      '300'
+    append_disk_size:               '1000'
+
+    # Template
+    ###############################################
+    template:                       'WindowsServer2016'
+
+
+
+    # VM Login + WinRM set
+    ###############################################
+    userename:                      'Administrator'
+    ansible_user:                   'Administrator'
+    ansible_password:               'PA$$wd1910'
+    ansible_port:                   '5985'
+    ansible_connection:             'winrm'
+    ansible_winrm_scheme:           'http'
+    ansible_winrm_server_cert_validation: ignore
+    domain_name:                    ''
+
+    # Networks
+    ###############################################
+    device_type:                    'vmxnet3'
+    port_group:                     'VM Network'
+    netmask:                        '255.255.255.128'
+    gateway:                        '10.40.3.126'
+
+    # # Global configure
+    # inventory_dns:
+    #   - 10.40.3.100
+    #   - 10.40.3.101
 
     # Folder Configure (type: vm / datacenter)
     #################################################
@@ -93,12 +760,12 @@ all:
         state: "present"
 
     # ResourcePool Configure
-    #################################################
-    ResourcePools:
-      - name: "Critical"
+    ###############################################
+    # ResourcePools:
+    #   - name: "Critical"
 
     # PortGroup Configure
-    #################################################
+    ###############################################
     Networks:
       - pg_name: "VM Network"
         vswitch: "vSwitch0"
@@ -110,17 +777,7 @@ all:
         vlan_id: 1
         state: "present"
 
-      - pg_name: "test_sw"
-        vswitch: "vSwitch0" 
-        vlan_id: 1
-        state: "absent"
         
-
-
-    Templates:
-      - template:     'WindowsServer2016'
-        image_path:   './ova/WindowsServer2016.ovf'
-
-
-
-
+    # Templates:
+    #   - template:     'WindowsServer2016'
+    #     image_path:   '{{ inventory_dir }}/ova/WindowsServer2016.ovf'

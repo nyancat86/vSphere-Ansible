@@ -1,0 +1,15 @@
+---
+- name: Powered on the machine
+  vmware_guest:
+    # Configure Target
+    state:                    'poweredon'
+    hostname:                 '{{ vcenter_hostname }}'
+    username:                 '{{ vcenter_username }}'
+    password:                 '{{ vcenter_password }}'
+    validate_certs:           'no'
+    datacenter:               '{{ datacenter }}'
+    datastore:                '{{ datastore }}'
+    cluster:                  '{{ cluster }}'
+    name:                     '{{ inventory_hostname }}'
+  delegate_to: localhost
+
