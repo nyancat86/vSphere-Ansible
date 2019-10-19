@@ -29,9 +29,6 @@
 #     - vCenter-DeployOVA
 
 
-########################################
-# Clone and Customize Virtual Machine 
-########################################
 - hosts: 
     #- Storage_Management_Server
     - ADFS_Server
@@ -61,16 +58,9 @@
   connection: local
   gather_facts: no
   roles:
-    - vCenter-VirtualMachine
-    - vCenter-VM_NIC
+    - vm_deploy_clone
+    - vm_enable_nic
 
-
-
-
-
-########################################
-# Customized Append Disk 
-########################################
 - hosts:
      - test
      ##- Storage_Management_Server
@@ -103,10 +93,6 @@
   roles:
     - vCenter-VM_Disk
 
-
-########################################
-# Powerd ON Selected Groups
-########################################
 - hosts: 
     - Storage_Management_Server
     - ADFS_Server
@@ -136,12 +122,8 @@
   connection: local
   gather_facts: no
   roles:
-    - vCenter-VM_poweron
+    - vm_power_on
 
-
-########################################
-# Wait for 10min until up Virtual Machine 
-########################################
 - hosts: 
     - Storage_Management_Server
     - ADFS_Server
@@ -170,11 +152,8 @@
     # - esxi
   gather_facts: no
   roles:
-    - wait_10min
+    - sys_wait_10min
 
-########################################
-# Customized Append Disk 
-########################################
 - hosts:
      - test
      ##- Storage_Management_Server
@@ -205,12 +184,8 @@
   connection: local
   gather_facts: no
   roles:
-    - win_partition_resize
+    - windows_part_append
 
-
-########################################
-# Extention C: Disk Size to MAX
-########################################
 - hosts: 
     ## - Storage_Management_Server
     - ADFS_Server
@@ -242,12 +217,8 @@
     - windows_part_resize
     - windows_set_pagefile
 
-
-########################################
-# run once command pallet
-########################################
 - hosts: 
-    ##- Storage_Management_Server
+    - Storage_Management_Server
     - ADFS_Server
     - Azure_AD_Connect_Server
     - Edge_Server
