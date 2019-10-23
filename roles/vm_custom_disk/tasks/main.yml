@@ -10,6 +10,7 @@
       - size_gb:          '{{ append_disk_size }}'
         datastore:        '{{ datastore }}'
         state:            'present'
+        type:             'thick'
         scsi_controller:  0
         unit_number:      1
   delegate_to: localhost

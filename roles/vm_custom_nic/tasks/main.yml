@@ -1,0 +1,18 @@
+---
+- name: reConfigure Interface 
+  vmware_guest:
+    # Configure Target
+    state:                    'present'
+    hostname:                 '{{ vcenter_hostname }}'
+    username:                 '{{ vcenter_username }}'
+    password:                 '{{ vcenter_password }}'
+    validate_certs:           'no'
+    datacenter:               '{{ datacenter }}'
+    datastore:                '{{ datastore }}'
+    cluster:                  '{{ cluster }}'
+
+
+    name:                     '{{ inventory_hostname }}'       
+    networks: '{{ nic_interfaces }}'
+  delegate_to: localhost
+

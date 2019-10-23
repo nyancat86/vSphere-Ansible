@@ -1,6 +1,15 @@
 ---
+# - name: "Online Disk "
+#   win_command: powershell.exe -
+#     args:
+#       stdin: "Set-Disk -Number 1 -IsOffline $false"
+    
 - name: "Create partition D:"
   win_partition:
-    drive_letter: D
+    offline:        no
+    read_only:      no
+    drive_letter:   D
+    gpt_type:       'basic_data'
     partition_size: -1
-    disk_number: 1
+    disk_number:    1
+    state:          present

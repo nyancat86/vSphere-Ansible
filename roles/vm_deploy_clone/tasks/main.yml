@@ -17,30 +17,20 @@
     name:                     '{{ inventory_hostname }}'
 
     template:                 '{{ template }}'
-    hardware:
-      memory_mb:              '{{ memory_mb }}'
-      nested_virt:            '{{ hvOn }}'
-      num_cpus:               '{{ num_cpus }}'
-      boot_firmware:          '{{ bootfirm }}'
 
-      
+    hardware:
+      memory_mb:                '{{ memory_mb }}'
+      nested_virt:              '{{ hvOn }}'
+      num_cpus:                 '{{ num_cpus }}'
+      num_cpu_cores_per_socket: '{{ num_cpus }}'
+      boot_firmware:            '{{ bootfirm }}'
+      convert:                  thick
     disk:
       - size_gb:              '{{ disk_size }}'
         datastore:            '{{ datastore }}'
-    networks:
-    - name:                   '{{ port_group }}'
-      device_type:            '{{ device_type }}'
-      ip:                     '{{ ansible_host }}'
-      netmask:                '{{ netmask }}'
-      gateway:                '{{ gateway }}'
-      domain:                 '{{ domain_name }}'
-      start_connected:        true
-      dns_servers:
-      - 10.52.1.50
-      - 10.52.1.51
-      #- vlan: 0
-      #type: dhcp
-
+        
+    networks: '{{ nic_interfaces }}'
+    
     customization:
       # productid:            ''
       autologon:              True
@@ -53,14 +43,20 @@
       # domainadminpassword:  ''
       # dns_servers:
       # - 192.168.1.100
-      domain: '{{ domain_name }}'
+      #domain: '{{ domain_name }}'
+
+      ###############################
+      # Append Configure command
+      ###############################
       runonce:
         - netsh advfirewall set allprofiles state off
         - powershell.exe -ExecutionPolicy RemoteSigned -Command "winrm qc -Force "
-        - powershell.exe -ExecutionPolicy RemoteSigned -Command "Enable-PSRemoting -force" 
-        - powershell.exe -ExecutionPolicy RemoteSigned -Command "Set-ExecutionPolicy RemoteSigned -Force" 
+        - powershell.exe -ExecutionPolicy RemoteSigned -Command "Enable-PSRemoting -Force" 
+        - powershell.exe -ExecutionPolicy RemoteSigned -Command "Set-ExecutionPolicy RemoteSigned -Force"
         - reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\PoliciesSystem /v LocalAccountTokenFilterPolicy /t REG_DWORD /d 1 /f 
         - winrm set winrm/config/service/auth @{Basic="true"}
         - winrm set winrm/config/service @{AllowUnencrypted="true"}
   delegate_to: localhost
+  with_items:
+    - "{{ nic_interfaces }}"
 

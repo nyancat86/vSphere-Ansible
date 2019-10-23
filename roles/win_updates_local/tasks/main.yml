@@ -1,0 +1,21 @@
+---
+- name: Reserve working dir
+  win_file:
+    dpath: "C:\secure"
+    state: directory
+
+- name: Transfer target
+  win_copy:
+    src: ./KB_file/target.msu
+    dest: "C:\secure"
+    force: yes
+
+- name: Running Update
+  win_command: wusa.exe -
+  args:
+   # stdout: C:/work/Windows8.1-KB3079904-x64.msu /extract:C:/work/ 一度確認する
+
+- name: Override test 
+  win_command: pkgmgr.exe -
+  args:
+   # stdout: /n:C:/work/Windows8.1-KB3079904-x64.xml /quiet /norestart
