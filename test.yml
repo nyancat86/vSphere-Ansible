@@ -1,43 +1,47 @@
-
-# - hosts: vcsa
-#   connection: local
-#   gather_facts: no
-#   roles:
-#     #- vCenter-Portgroup
-#     #- vCenter-ResourcePool
-#     - vCenter-Folder
-
-
-# - hosts: vcsa
-#   connection: local
-#   gather_facts: no
-#   roles:
-#     #- vCenter-Portgroup
-#     #- vCenter-ResourcePool
-#     #- vCenter-Folder
-#     #- vCenter-DeployOVA
-
 - hosts: 
-    - test
-  gather_facts: no
-  connection: localhost
-  roles:
-    - vCenter-VirtualMachine
-    # - vCenter-VirtualMachine
-    # - vCenter-VM_Disk
-    - vCenter-VM_NIC
-    - vCenter-VM_poweron
-
-- hosts: 
-    - test
+    - Job_Manage_Server
+    - Management_Log_Server
+    - WSUS_Server
+  connection: local
   gather_facts: no
   roles:
-    - wait_10min
+    - vm_deploy_clone
+    - vm_custom_nic
 
+- hosts:
+    - Job_Manage_Server
+    - Management_Log_Server
+    - WSUS_Server
+  connection: local
+  gather_facts: no
+  roles:
+    - vm_custom_disk
 
 - hosts: 
-    - test
+    - Job_Manage_Server
+    - Management_Log_Server
+    - WSUS_Server
+  connection: local
+  gather_facts: no
+  roles:
+    - vm_power_on
+    - sys_wait_10min
+
+- hosts: 
+    - Job_Manage_Server
+    - Management_Log_Server
+    - WSUS_Server
   gather_facts: yes
   roles:
-    - win_partition
-    #- win_Run_command
+    - windows_part_resize
+    - windows_set_pagefile
+
+
+- hosts:
+    - Job_Manage_Server
+    - Management_Log_Server
+    - WSUS_Server
+  connection: local
+  gather_facts: no
+  roles:
+    - windows_part_append

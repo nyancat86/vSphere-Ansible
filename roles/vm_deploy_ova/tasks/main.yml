@@ -6,7 +6,7 @@
     password: '{{ vcenter_password }}'
     datacenter: '{{ datacenter }}'
     cluster: '{{ cluster }}'
-    datastore: "datastore1"
+    datastore: "{{ item.dst }}"
     name: '{{ item.template }}'
     #folder: '{{ item.save_as }}'
     power_on: no

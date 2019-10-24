@@ -1,8 +1,8 @@
 ---
-# - name: "Online Disk "
-#   win_command: powershell.exe -
-#     args:
-#       stdin: "Set-Disk -Number 1 -IsOffline $false"
+- name: "Online Disk "
+  win_command: powershell.exe -
+    args:
+      stdin: Set-Disk -Number 1 -IsOffline $false
     
 - name: "Create partition D:"
   win_partition:

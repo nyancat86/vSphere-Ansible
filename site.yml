@@ -26,11 +26,11 @@
 #     #- vCenter-Portgroup
 #     #- vCenter-ResourcePool
 #     #- vCenter-Folder
-#     - vCenter-DeployOVA
+#     #- vCenter-DeployOVA
 
 
 - hosts: 
-    #- Storage_Management_Server
+    - Storage_Management_Server
     - ADFS_Server
     - Azure_AD_Connect_Server
     - Edge_Server
@@ -54,44 +54,45 @@
     - Skype_Witness_Secure
     - Virt_Management_Server
     - WSUS_Server
-    # - esxi
   connection: local
   gather_facts: no
   roles:
     - vm_deploy_clone
-    - vm_enable_nic
+    - vm_custom_nic
+
+
 
 - hosts:
-     - test
-     ##- Storage_Management_Server
-     - ADFS_Server
-     - Azure_AD_Connect_Server
-     - Edge_Server
-     - Exchange_HUB_Server
-    # - Exchange_Watch_Server
-     - Job_Manage_Server
-     - Management_Address
-     - Management_ID
-     - Management_Log_Server
-     - Office_Online
-     - Office_Online_Secure
+    ##- Storage_Management_Server
+    - ADFS_Server
+    - Azure_AD_Connect_Server
+    - Edge_Server
+    - Exchange_HUB_Server
+    - Exchange_Watch_Server
+    - Job_Manage_Server
+    - Management_Address
+    - Management_ID
+    - Management_Log_Server
+    - Office_Online
+    - Office_Online_Secure
     # - RMS
-     - Skype_Backend
-     - Skype_Backend_Secure
+    - Skype_Backend
+    - Skype_Backend_Secure
     # - Skype_Edge
     # - Skype_Edge_Secure
-     - Skype_Frontend
-     - Skype_Frontend_Secure
+    - Skype_Frontend
+    - Skype_Frontend_Secure
     # - Skype_Photo_Server
     # - Skype_Witness
     # - Skype_Witness_Secure
-     - Virt_Management_Server
-     - WSUS_Server
-    # - esxi
+    - Virt_Management_Server
+    - WSUS_Server
   connection: local
   gather_facts: no
   roles:
-    - vCenter-VM_Disk
+    - vm_custom_disk
+
+
 
 - hosts: 
     - Storage_Management_Server
@@ -118,11 +119,15 @@
     - Skype_Witness_Secure
     - Virt_Management_Server
     - WSUS_Server
-    - esxi
   connection: local
   gather_facts: no
   roles:
     - vm_power_on
+    - sys_wait_10min
+
+
+
+
 
 - hosts: 
     - Storage_Management_Server
@@ -149,104 +154,38 @@
     - Skype_Witness_Secure
     - Virt_Management_Server
     - WSUS_Server
-    # - esxi
-  gather_facts: no
-  roles:
-    - sys_wait_10min
-
-- hosts:
-     - test
-     ##- Storage_Management_Server
-     - ADFS_Server
-     - Azure_AD_Connect_Server
-     - Edge_Server
-     - Exchange_HUB_Server
-    # - Exchange_Watch_Server
-     - Job_Manage_Server
-     - Management_Address
-     - Management_ID
-     - Management_Log_Server
-     - Office_Online
-     - Office_Online_Secure
-    # - RMS
-     - Skype_Backend
-     - Skype_Backend_Secure
-    # - Skype_Edge
-    # - Skype_Edge_Secure
-     - Skype_Frontend
-     - Skype_Frontend_Secure
-    # - Skype_Photo_Server
-    # - Skype_Witness
-    # - Skype_Witness_Secure
-     - Virt_Management_Server
-     - WSUS_Server
-    # - esxi
-  connection: local
-  gather_facts: no
-  roles:
-    - windows_part_append
-
-- hosts: 
-    ## - Storage_Management_Server
-    - ADFS_Server
-    - Azure_AD_Connect_Server
-    - Edge_Server
-    - Exchange_HUB_Server
-    - Exchange_Watch_Server
-    - Job_Manage_Server
-    - Management_Address
-    - Management_ID
-    - Management_Log_Server
-    - Office_Online
-    - Office_Online_Secure
-    - RMS
-    - Skype_Backend
-    - Skype_Backend_Secure
-    - Skype_Edge
-    - Skype_Edge_Secure
-    - Skype_Frontend
-    - Skype_Frontend_Secure
-    - Skype_Photo_Server
-    - Skype_Witness
-    - Skype_Witness_Secure
-    - Virt_Management_Server
-    - WSUS_Server
-    - esxi
   gather_facts: yes
   roles:
     - windows_part_resize
     - windows_set_pagefile
 
-- hosts: 
-    - Storage_Management_Server
+
+- hosts:
+    # - Storage_Management_Server
     - ADFS_Server
     - Azure_AD_Connect_Server
     - Edge_Server
     - Exchange_HUB_Server
-    - Exchange_Watch_Server
+    # - Exchange_Watch_Server
     - Job_Manage_Server
     - Management_Address
     - Management_ID
     - Management_Log_Server
     - Office_Online
     - Office_Online_Secure
-    - RMS
+    # - RMS
     - Skype_Backend
     - Skype_Backend_Secure
-    - Skype_Edge
-    - Skype_Edge_Secure
+    # - Skype_Edge
+    # - Skype_Edge_Secure
     - Skype_Frontend
     - Skype_Frontend_Secure
-    - Skype_Photo_Server
-    - Skype_Witness
-    - Skype_Witness_Secure
+    # - Skype_Photo_Server
+    # - Skype_Witness
+    # - Skype_Witness_Secure
     - Virt_Management_Server
     - WSUS_Server
-    ##- esxi
-  gather_facts: yes
-  roles:    
-    - win_run_once
-  vars:
-    command:
-      - exec: "powershell.exe -"
-        args: "Rename-NetAdapter -Name Ethernet -NewName Management"
+  connection: local
+  gather_facts: no
+  roles:
+    - windows_part_append

@@ -1,8 +1,10 @@
 ---
 - name: Clone a virtual machine from Windows template and customize
   vmware_guest:
-    # Configure Target
-    state:                    'present'
+
+    # Deploying target (vCenter Server)
+    ###################################
+    state:                    '{{ statement }}'
     hostname:                 '{{ vcenter_hostname }}'
     username:                 '{{ vcenter_username }}'
     password:                 '{{ vcenter_password }}'
@@ -12,8 +14,8 @@
     cluster:                  '{{ cluster }}'
     folder: /
 
-
-    # Configure Virtual Machine over view
+    # Machine Setting (Lookup vars)
+    ###################################
     name:                     '{{ inventory_hostname }}'
 
     template:                 '{{ template }}'
@@ -24,7 +26,7 @@
       num_cpus:                 '{{ num_cpus }}'
       num_cpu_cores_per_socket: '{{ num_cpus }}'
       boot_firmware:            '{{ bootfirm }}'
-      convert:                  thick
+
     disk:
       - size_gb:              '{{ disk_size }}'
         datastore:            '{{ datastore }}'
@@ -35,15 +37,13 @@
       # productid:            ''
       autologon:              True
       autologoncount:         1
-      ## Login customize ##
       fullname:               '{{ ansible_user }}'
       password:               '{{ ansible_password }}'
-      ## Set domain infomation ##
       # domain_admin:         ''
       # domainadminpassword:  ''
       # dns_servers:
       # - 192.168.1.100
-      #domain: '{{ domain_name }}'
+      # domain:               '{{ domain_name }}'
 
       ###############################
       # Append Configure command
