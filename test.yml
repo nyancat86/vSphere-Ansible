@@ -1,46 +1,34 @@
+
 - hosts: 
-    - Job_Manage_Server
-    - Management_Log_Server
-    - WSUS_Server
+    - Storage_Management_Server
+    - Virt_Management_Server
   connection: local
+  ignore_errors: yes
   gather_facts: no
   roles:
     - vm_deploy_clone
     - vm_custom_nic
-
-- hosts:
-    - Job_Manage_Server
-    - Management_Log_Server
-    - WSUS_Server
-  connection: local
-  gather_facts: no
-  roles:
     - vm_custom_disk
-
-- hosts: 
-    - Job_Manage_Server
-    - Management_Log_Server
-    - WSUS_Server
-  connection: local
-  gather_facts: no
-  roles:
     - vm_power_on
     - sys_wait_10min
 
+
+
+
+
 - hosts: 
-    - Job_Manage_Server
-    - Management_Log_Server
-    - WSUS_Server
+    - Storage_Management_Server
+    - Virt_Management_Server
   gather_facts: yes
   roles:
     - windows_part_resize
     - windows_set_pagefile
+    - windows_network_nic
 
 
 - hosts:
-    - Job_Manage_Server
-    - Management_Log_Server
-    - WSUS_Server
+    - Storage_Management_Server
+    - Virt_Management_Server
   connection: local
   gather_facts: no
   roles:

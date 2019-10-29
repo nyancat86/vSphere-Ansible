@@ -6,12 +6,6 @@
     datacenter: "{{ datacenter }}"
     validate_certs: no
     name: '{{ inventory_hostname }}'
-    disk:
-      - size_gb:          '{{ append_disk_size }}'
-        datastore:        '{{ datastore }}'
-        state:            'present'
-        type:             'thick'
-        scsi_controller:  0
-        unit_number:      1
+    disk: '{{ append_disk }}'
   delegate_to: localhost
   register: disk_facts

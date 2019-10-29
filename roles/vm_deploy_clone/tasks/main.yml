@@ -17,7 +17,7 @@
     # Machine Setting (Lookup vars)
     ###################################
     name:                     '{{ inventory_hostname }}'
-
+    convert:                  '{{ disk_type }}'
     template:                 '{{ template }}'
 
     hardware:

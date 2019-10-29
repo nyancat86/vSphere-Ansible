@@ -42,7 +42,6 @@
     - Management_Log_Server
     - Office_Online
     - Office_Online_Secure
-    - RMS
     - Skype_Backend
     - Skype_Backend_Secure
     - Skype_Edge
@@ -55,73 +54,12 @@
     - Virt_Management_Server
     - WSUS_Server
   connection: local
+  ignore_errors: yes
   gather_facts: no
   roles:
     - vm_deploy_clone
     - vm_custom_nic
-
-
-
-- hosts:
-    ##- Storage_Management_Server
-    - ADFS_Server
-    - Azure_AD_Connect_Server
-    - Edge_Server
-    - Exchange_HUB_Server
-    - Exchange_Watch_Server
-    - Job_Manage_Server
-    - Management_Address
-    - Management_ID
-    - Management_Log_Server
-    - Office_Online
-    - Office_Online_Secure
-    # - RMS
-    - Skype_Backend
-    - Skype_Backend_Secure
-    # - Skype_Edge
-    # - Skype_Edge_Secure
-    - Skype_Frontend
-    - Skype_Frontend_Secure
-    # - Skype_Photo_Server
-    # - Skype_Witness
-    # - Skype_Witness_Secure
-    - Virt_Management_Server
-    - WSUS_Server
-  connection: local
-  gather_facts: no
-  roles:
     - vm_custom_disk
-
-
-
-- hosts: 
-    - Storage_Management_Server
-    - ADFS_Server
-    - Azure_AD_Connect_Server
-    - Edge_Server
-    - Exchange_HUB_Server
-    - Exchange_Watch_Server
-    - Job_Manage_Server
-    - Management_Address
-    - Management_ID
-    - Management_Log_Server
-    - Office_Online
-    - Office_Online_Secure
-    - RMS
-    - Skype_Backend
-    - Skype_Backend_Secure
-    - Skype_Edge
-    - Skype_Edge_Secure
-    - Skype_Frontend
-    - Skype_Frontend_Secure
-    - Skype_Photo_Server
-    - Skype_Witness
-    - Skype_Witness_Secure
-    - Virt_Management_Server
-    - WSUS_Server
-  connection: local
-  gather_facts: no
-  roles:
     - vm_power_on
     - sys_wait_10min
 
@@ -142,7 +80,6 @@
     - Management_Log_Server
     - Office_Online
     - Office_Online_Secure
-    - RMS
     - Skype_Backend
     - Skype_Backend_Secure
     - Skype_Edge
@@ -158,6 +95,9 @@
   roles:
     - windows_part_resize
     - windows_set_pagefile
+    - windows_debug_dump
+    - windows_network_nic
+
 
 
 - hosts:
@@ -173,7 +113,6 @@
     - Management_Log_Server
     - Office_Online
     - Office_Online_Secure
-    # - RMS
     - Skype_Backend
     - Skype_Backend_Secure
     # - Skype_Edge

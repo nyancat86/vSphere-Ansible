@@ -1,0 +1,6 @@
+- name: Set Interface name
+  win_command: powershell.exe -
+  args:
+    stdin: Rename-NetAdapter -Name {{ item.before }} -NewName {{ item.after }}
+  with_items:
+    - "{{ nic_names }}"

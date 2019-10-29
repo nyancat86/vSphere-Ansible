@@ -1,15 +1,36 @@
 ---
-- name: "Online Disk "
+- name: "Set to online target disk"
   win_command: powershell.exe -
-    args:
-      stdin: Set-Disk -Number 1 -IsOffline $false
-    
-- name: "Create partition D:"
+  args:
+    stdin: Set-Disk -Number {{ item.unit_number }} -IsOffline $false
+  with_items:
+    - '{{ partition }}'
+
+- name: "Initialize target "
+  win_command: powershell.exe -
+  args:
+    stdin: Initialize-Disk -Number {{ item.unit_number }} -PartitionStyle {{ item.partition_style }} -PassThru
+  ignore_errors: yes
+  with_items:
+    - '{{ partition }}' 
+
+- name: "Create partition"
   win_partition:
     offline:        no
     read_only:      no
-    drive_letter:   D
-    gpt_type:       'basic_data'
-    partition_size: -1
-    disk_number:    1
+    drive_letter:   '{{ item.letter }}'
+    partition_size: '{{ item.partition_size }}'
+    disk_number:    '{{ item.unit_number }}'
     state:          present
+  ignore_errors: yes
+  with_items:
+    - '{{ partition }}' 
+
+- name: " Fast format the newly created partition as NTFS and label "
+  win_format:
+    drive_letter: '{{ item.letter }}'
+    file_system:  '{{ item.fs_type }}'
+    new_label:    ''
+    full:         false
+  with_items:
+    - '{{ partition }}'   

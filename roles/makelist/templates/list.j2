@@ -1,0 +1,63 @@
+HostName      : {{ inventory_hostname }} 
+IPaddr        : {{ ansible_host }}
+
+# Hardware
+####################
+CPU core      : {{ num_cpus }}
+RAM size      : {{ memory_mb }} MB
+
+# OS setting
+####################
+Pagefile      : {{ (memory_mb+300)|int|abs }} MB
+
+# Attached Disks
+####################
+  Disk 0:
+    Size      : {{ disk_size }} GB
+    type      : thick
+    Attach_on : 0/0
+  {% for item in append_disk %}
+
+  Disk {{ loop.index }}:
+    Size      : {{ item.size_gb }} GB
+    type      : {{ item.type }}
+    Attach_on : {{ item.scsi_controller }}/{{ item.unit_number }}
+
+  {% endfor %}
+
+# Partition
+####################
+{% for item in partition %}
+  Letter      : {{ item.letter }}
+    patition  : {{ item.partition_style }}
+    filesystem: {{ item.fs_type }}
+    size      : {{ item.partition_size }}
+{% endfor %}
+
+# Deploy target
+####################
+Datastore   : {{ datastore }}
+
+# NIC names
+####################
+{% for item in nic_names %}
+NIC {{ item.before }} :
+  Changed after : {{ item.after }}
+
+{% endfor %}
+
+
+# Network Interface
+####################
+{% for item in nic_interfaces %}
+NIC {{ loop.index }}:
+  PortGroup   : {{ item.name }}
+  Switch      : {{ item.dvswitch_name }}
+  Device      : {{ item.device_type }}
+  IPaddr      : {{ item.ip }}
+  Netmask     : {{ item.netmask }}
+  Gateway     : {{ item.gateway }}
+  
+{% endfor %}
+
+
