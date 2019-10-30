@@ -11,8 +11,18 @@
     datastore:                '{{ datastore }}'
     cluster:                  '{{ cluster }}'
 
+    name:                     '{{ inventory_hostname }}'
 
-    name:                     '{{ inventory_hostname }}'       
-    networks: '{{ nic_interfaces }}'
+    networks: '{{ export_nic }}'
+      # - name:                 '{{ item.interface.name }}'
+      #   dvswitch_name:        '{{ item.interface.name }}'
+      #   device_type:          '{{ item.interface.name }}'
+      #   ip:                   '{{ item.interface.name }}'
+      #   netmask:              '{{ item.interface.name }}'
+      #   gateway:              '{{ item.interface.name }}'
+      #   start_connected:      true
+
   delegate_to: localhost
+  # with_items:
+  #   - '{{ Network }}'
 

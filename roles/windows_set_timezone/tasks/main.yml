@@ -1,0 +1,13 @@
+- name: Set timezone to 'GMT Standard Time' (GMT)
+  win_timezone:
+    timezone: Tokyo Standard Time
+# https://docs.microsoft.com/en-us/previous-versions/windows/embedded/ms912391(v=winembedded.11)?redirectedfrom=MSDN
+  register: result
+
+# - name: Out File
+#   delegate_to: localhost
+#   copy:
+#     content: "{{ report }}"
+#     dest: "{{ inventory_dir }}/Logs/{{ inventory_hostname }}/TimeZone.log "
+#   vars: 
+#     report: "{{ result.timezone }}"

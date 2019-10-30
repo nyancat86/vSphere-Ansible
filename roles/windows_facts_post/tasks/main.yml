@@ -1,0 +1,15 @@
+- name: "[Facts 01] Get OS License"
+  win_product_facts:
+  register: win_license_facts
+
+- debug:
+    var:  win_license_facts
+
+- name: "[Facts 02] Custom Facts"
+  win_command: powershell.exe - 
+  args:
+    stdin: Get-WmiObject Win32_QuickFixEngineering | ft -autosize
+  register: result
+  
+- debug:
+    var:  result

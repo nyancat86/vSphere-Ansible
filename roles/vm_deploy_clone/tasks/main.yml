@@ -1,7 +1,6 @@
 ---
 - name: Clone a virtual machine from Windows template and customize
   vmware_guest:
-
     # Deploying target (vCenter Server)
     ###################################
     state:                    '{{ statement }}'
@@ -31,7 +30,7 @@
       - size_gb:              '{{ disk_size }}'
         datastore:            '{{ datastore }}'
         
-    networks: '{{ nic_interfaces }}'
+    networks: '{{ export_nic }}'
     
     customization:
       # productid:            ''
@@ -57,6 +56,5 @@
         - winrm set winrm/config/service/auth @{Basic="true"}
         - winrm set winrm/config/service @{AllowUnencrypted="true"}
   delegate_to: localhost
-  with_items:
-    - "{{ nic_interfaces }}"
+
 

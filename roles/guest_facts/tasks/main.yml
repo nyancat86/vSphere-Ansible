@@ -1,0 +1,16 @@
+---
+- name: Gather some facts from a guest using the vSphere API output schema
+  vmware_guest_facts:
+    hostname: "{{ vcenter_hostname }}"
+    username: "{{ vcenter_username }}"
+    password: "{{ vcenter_password }}"
+    validate_certs: no
+    datacenter: "{{ datacenter }}"
+    name: "{{ inventory_hostname }}"
+    schema: "vsphere"
+    properties: [ "config.hardware.memoryMB", "config.hardware.numCPU","overallStatus"]
+  delegate_to: localhost
+  register: facts
+
+- debug:
+    var: facts

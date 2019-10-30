@@ -1,0 +1,13 @@
+---
+export_nic:
+{% for item in Network %}
+  - name:           {{ item.interface.name }}
+    dvswitch_name:  {{ item.interface.dvswitch_name }}
+    device_type:    {{ item.interface.device_type }}
+    ip:             {{ item.interface.ip }}
+    netmask:        {{ item.interface.netmask }}
+    gateway:        {{ item.interface.gateway }}
+    start_connected: true
+{% endfor %}
+
+

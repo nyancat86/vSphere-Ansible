@@ -1,6 +1,16 @@
 - name: Set Interface name
+  ignore_errors: yes
   win_command: powershell.exe -
   args:
-    stdin: Rename-NetAdapter -Name {{ item.before }} -NewName {{ item.after }}
+    stdin: Rename-NetAdapter -Name {{ item.names.before }} -NewName {{ item.names.after }}
   with_items:
-    - "{{ nic_names }}"
+    - "{{ Network }}"
+
+
+- name: Set to disable ipv6
+  ignore_errors: yes
+  win_command: powershell.exe -
+  args:
+    stdin: Disable-NetAdapterBinding -Name "{{ item.names.after }}" -ComponentID ms_tcpip6
+  with_items:
+    - "{{ Network }}"

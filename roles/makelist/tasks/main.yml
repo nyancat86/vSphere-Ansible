@@ -3,5 +3,4 @@
   template:
     src:  list.j2
     dest: ./lists/{{ inventory_hostname }}-lists
-    #dest: ./lists/Inventory-list
   delegate_to: localhost
