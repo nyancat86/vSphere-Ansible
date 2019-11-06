@@ -5,3 +5,5 @@ makelist.yml
 dr_inventory.yml
 ova/
 lists/
+host_vars/
+group_vars/

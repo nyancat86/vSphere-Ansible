@@ -1,7 +1,0 @@
-- name: Administrator Password lifetime set to infinite.
-  win_command: cmd.exe - 
-  args:
-    stdin: wmic UserAccount where Name="Administrator" set PasswordExpires=False
-
-
-

@@ -1,4 +1,0 @@
-- name: Set RAM dump setting
-  win_command: powershell.exe -
-  args:
-    stdin: wmic RECOVEROS set DebugInfoType=1

@@ -1,0 +1,30 @@
+---
+- name: machine poweroff (ACPI)
+  vmware_guest_powerstate :
+    # Configure Target
+    state:                    'shutdown-guest'
+    hostname:                 '{{ vcenter_hostname }}'
+    username:                 '{{ vcenter_username }}'
+    password:                 '{{ vcenter_password }}'
+    validate_certs:           'no'
+    name:                     '{{ inventory_hostname }}'
+  delegate_to: localhost
+
+- name: sleep for 45 seconds and continue with play
+  wait_for:
+    timeout: 45
+  delegate_to: localhost
+
+- name: destroy virtual machine
+  vmware_guest:
+    # Configure Target
+    state:                    'absent'
+    hostname:                 '{{ vcenter_hostname }}'
+    username:                 '{{ vcenter_username }}'
+    password:                 '{{ vcenter_password }}'
+    validate_certs:           'no'
+    datacenter:               '{{ datacenter }}'
+    datastore:                '{{ datastore }}'
+    cluster:                  '{{ cluster }}'
+    name:                     '{{ inventory_hostname }}'
+  delegate_to: localhost    

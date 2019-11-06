@@ -1,0 +1,27 @@
+---
+- name: Format host_vars
+  file:
+    path: ./host_vars
+    state: "absent"
+    mode: 755
+    force: true
+
+- name: Initialize host_vars
+  file:
+    path: ./host_vars
+    state: "directory"
+    mode: 755
+    force: true
+
+- name: Initialize group_vars
+  file:
+    path: ./host_vars
+    state: "directory"
+    mode: 755
+    force: true
+
+- name: export nic vars
+  template:
+    src:  nic.j2
+    dest: ./host_vars/{{ inventory_hostname }}.yml
+  delegate_to: localhost

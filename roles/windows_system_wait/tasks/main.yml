@@ -1,4 +1,0 @@
-- name: Wait for 10min
-  wait_for_connection:
-    delay: 60
-    timeout: 600
