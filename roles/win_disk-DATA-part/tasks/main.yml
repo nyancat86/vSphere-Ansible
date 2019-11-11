@@ -5,7 +5,7 @@
   args:
     stdin: Set-Disk -Number {{ item.Part.unit_number }} -IsOffline $false
   with_items:
-    - '{{ Partition }}'
+    - '{{ Disks }}'
   register: result
 
 - name: "Initialize target "
@@ -15,7 +15,7 @@
     stdin: Initialize-Disk -Number {{ item.Part.unit_number }} -PartitionStyle {{ item.Part.partition_style }} -PassThru
   ignore_errors: yes
   with_items:
-    - '{{ Partition }}' 
+    - '{{ Disks }}' 
 
 - name: "Create partition"
   when: item.Disk.size_gb != 0
@@ -28,7 +28,7 @@
     state:          present
   ignore_errors: yes
   with_items:
-    - '{{ Partition }}' 
+    - '{{ Disks }}' 
 
 - name: " Fast format the newly created partition as NTFS and label "
   when: item.Disk.size_gb != 0
@@ -38,4 +38,4 @@
     new_label:    ''
     full:         false
   with_items:
-    - '{{ Partition }}' 
+    - '{{ Disks }}' 

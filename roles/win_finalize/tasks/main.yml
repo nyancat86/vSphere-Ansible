@@ -1,0 +1,35 @@
+---
+# - name: "[Gateway] Delete Default Gateway"
+#   win_command: powershell.exe -
+#   args:
+#     stdin: Get-NetAdapter -InterfaceDescription "{{ Network[0].names.adapter }}" | Remove-NetRoute -DestinationPrefix 0.0.0.0/0 -confirm:$false
+#   ignore_errors: yes
+#   async: 15
+#   poll: 15
+
+# - name: "[DNS] Remove DNS Address in Operation"
+#   win_dns_client:
+#     adapter_names: Operation
+#     ipv4_addresses: []
+
+# - name: Wait for 10min
+#   wait_for_connection:
+#     delay: 30
+#     timeout: 600
+
+- name: "[Recovery] Ansible"
+  win_template:
+    src:  recovery.j2
+    dest: C:\recovery.ps1
+
+- name: "[Destroy] Ansible"
+  win_template:
+    src:  destroy.j2
+    dest: C:\destroy.ps1
+
+- name: exec destroy
+  win_command: powershell.exe - 
+  args:
+    stdin: powershell.exe -File C:\destroy.ps1
+  async: 10
+  poll: 0   

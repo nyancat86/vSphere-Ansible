@@ -1,0 +1,7 @@
+---
+- name: export nic vars
+  template:
+    src:  inventory.j2
+    dest: ./host_vars/{{ inventory_hostname }}.yml
+  delegate_to: localhost
+

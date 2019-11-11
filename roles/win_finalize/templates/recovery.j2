@@ -1,0 +1,7 @@
+reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\PoliciesSystem /v LocalAccountTokenFilterPolicy /t REG_DWORD /d 1 /f
+winrm set winrm/config/service '@{AllowUnencrypted="true"}'
+winrm set winrm/config/service/Auth '@{Basic="true"}'
+powershell.exe -ExecutionPolicy RemoteSigned -Command "winrm qc -Force"
+powershell.exe -ExecutionPolicy RemoteSigned -Command "Enable-PSRemoting -force"
+powershell.exe -ExecutionPolicy RemoteSigned -Command "Set-ExecutionPolicy RemoteSigned"
+Remove-Item C:\recovery.ps1 -Force

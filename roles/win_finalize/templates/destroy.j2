@@ -1,0 +1,6 @@
+    reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\PoliciesSystem /v LocalAccountTokenFilterPolicy /t REG_DWORD /d 0 /f
+    powershell.exe -ExecutionPolicy RemoteSigned -Command "Disable-PSRemoting -force"
+    powershell.exe -ExecutionPolicy RemoteSigned -Command "Set-ExecutionPolicy RemoteSigned"
+    winrm set winrm/config/service '@{AllowUnencrypted="false"}'
+    winrm set winrm/config/service/Auth '@{Basic="false"}'
+    Remove-Item C:\destroy.ps1 -Force

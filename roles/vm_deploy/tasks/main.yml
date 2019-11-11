@@ -17,4 +17,4 @@
     validate_certs: no
   delegate_to: localhost
   with_items:
-    - '{{ Templates }}'
+    - '{{ Disks }}'

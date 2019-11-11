@@ -1,0 +1,13 @@
+---
+- name: Register windows license code
+  win_command: powershell.exe -
+  args:
+    stdin: cscript //Nologo $ENV:SystemRoot\System32\slmgr.vbs /ipk {{ license }}
+
+- name: check license
+  win_product_facts:
+  register: result
+
+- debug:
+    var: result
+
