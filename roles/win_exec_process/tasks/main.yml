@@ -1,0 +1,43 @@
+---
+- name: Create Direcrory
+  win_file:
+    path: C:\Temp
+    state: folder
+    force: yes
+
+- name: Create Log dir
+  file:
+    path: ./log
+    state: folder
+    force: yes
+  delegate_to: localhost
+  run_once: yes
+
+- name: Create Machine dir
+  file:
+    path: './log/{{ inventory_hostname }}'
+    state: folder
+    force: yes
+  delegate_to: localhost
+
+- name: Copy File
+  win_copy:
+    src: '{{ item }}'
+    dest: C:\Temp\
+  with_items:
+    - /src/myfiles/foo.conf
+
+- name: Exec File
+  win_command: powershell.exe -
+  args:
+    stdin: '{{ item }}'
+  with_items:
+    -  
+
+# - name: Recv Result
+  win_copy:
+    src: '{{ item }}'
+    dest: ./log
+    remote_src: yes
+  with_items:
+    - C:\Temp\example.log

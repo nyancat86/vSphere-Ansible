@@ -5,9 +5,11 @@
     stdin: cscript //Nologo $ENV:SystemRoot\System32\slmgr.vbs /ipk {{ license }}
 
 - name: check license
+  # failed_when:   == 'Notification'
   win_product_facts:
   register: result
 
 - debug:
     var: result
+
 

@@ -6,6 +6,6 @@
 
 - name: merge
   shell: |
-    echo "HostName, Firmware, Management-IP, CPU Core / Sockets, Memory Capacity," >>  ./lists/listed.csv 
+    echo "HostName, Management-IP, CPU Core, Sockets, Memory Capacity," >>  ./lists/listed.csv 
     cat ./lists/*.dat >> ./lists/listed.csv ¥
     rm -rf ./lists/*.dat

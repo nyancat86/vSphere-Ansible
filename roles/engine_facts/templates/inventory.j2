@@ -14,7 +14,7 @@ export_nic:
 
 export_disk:
 {% for item in Disks %}
-  - size_gb:          '{{ item.Disk.size_gb }}'
+  - size_gb:          {{ item.Disk.size_gb }}
     type:             '{{ item.Disk.type }}'
     datastore:        '{{ item.Disk.datastore }}'
     state:            '{{ item.Disk.state }}'

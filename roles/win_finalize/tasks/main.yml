@@ -17,10 +17,10 @@
 #     delay: 30
 #     timeout: 600
 
-- name: "[Recovery] Ansible"
-  win_template:
-    src:  recovery.j2
-    dest: C:\recovery.ps1
+# - name: "[Recovery] Ansible"
+#   win_template:
+#     src:  recovery.j2
+#     dest: C:\recovery.ps1
 
 - name: "[Destroy] Ansible"
   win_template:

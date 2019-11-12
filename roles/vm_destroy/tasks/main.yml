@@ -10,10 +10,11 @@
     name:                     '{{ inventory_hostname }}'
   delegate_to: localhost
 
-- name: sleep for 45 seconds and continue with play
+- name: sleep for 20 seconds and continue with play
   wait_for:
-    timeout: 45
+    timeout: 20
   delegate_to: localhost
+  run_once: yes
 
 - name: destroy virtual machine
   vmware_guest:

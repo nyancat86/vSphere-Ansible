@@ -1,0 +1,8 @@
+00_REQUIRE_RESET.yml
+01_DEPLOY_VM.yml
+02_DISK_CONFIGURE.yml
+03_BUILD_WINDOWS.yml
+04_FINALIZE.yml
+10_EMERGENCY_DESTROY.yml
+inventory.yml
+dr_inventory.yml

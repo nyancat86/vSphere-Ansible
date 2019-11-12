@@ -48,9 +48,12 @@
     stdin: Get-NetAdapter -InterfaceDescription "{{ Network[0].names.adapter }}" | Remove-NetRoute -DestinationPrefix 0.0.0.0/0 -confirm:$false; Get-NetAdapter -InterfaceDescription "{{ Network[0].names.adapter }}" | Remove-NetIPAddress -confirm:$false; Get-NetAdapter -InterfaceDescription "{{ Network[0].names.adapter }}" | New-NetIPAddress -AddressFamily IPv4 -IPAddress '{{ ansible_host }}' -prefix 25 -DefaultGateway 10.40.3.120
   ignore_errors: yes
   async: 15
-  poll: 15
+  poll: 0
 
-
+- name: Wait for 10min
+  wait_for_connection:
+    delay: 5
+    timeout: 600
 
 - name: Enable SMB MultiChannel Server setting
   win_command: powershell.exe -
