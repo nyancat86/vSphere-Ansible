@@ -1,47 +1,32 @@
 ---
-- name: "[BETA] Remove DNS"
-  win_command: powershell.exe -
-  args:
-    stdin: Get-NetAdapter -InterfaceDescription "{{ item.names.adapter }}" | Set-DnsClientServerAddress -ResetServerAddresses
-  with_items:
-    - "{{ Network }}"
+- set_fact:
+    Network: "{{ BaseNetwork + AppendNetwork }}"
 
-- name: "[Gateway] Delete Default Gateway"
+- name: "Remove ALL Route"
   win_command: powershell.exe -
   args:
-    stdin: Get-NetAdapter -InterfaceDescription "{{ item.names.adapter }}" | Remove-NetRoute -DestinationPrefix 0.0.0.0/0 -confirm:$false; 
-  ignore_errors: yes
+    stdin: Remove-NetRoute  -DestinationPrefix 0.0.0.0/0 -confirm:$false
+
+- name: "[netsh] Set IP configure"
+  win_command: powershell.exe -
+  args:
+    stdin: netsh interface ip set address "{{ item.names.nic_name }}" static {{ item.interface.ip }} {{ item.interface.netmask }} {{ item.interface.gateway }}
   with_items:
     - "{{ Network }}"
-  async: 15
-  poll: 0
 
 - name: Wait for 10min
   wait_for_connection:
     delay: 5
     timeout: 600
 
-- name: "[Gateway] Reconfigure Default Gateway"
-  win_command: powershell.exe -
-  args:
-    stdin: Get-NetAdapter -Name "{{ item.nic_name }}" | Remove-NetIPAddress -confirm:$false; Get-NetAdapter -Name "{{ item.nic_name }}" | New-NetIPAddress -AddressFamily IPv4 -IPAddress '{{ item.ip }}' -prefix '{{ item.prefix }}' -DefaultGateway '{{ item.gateway }}'
-  with_items:
-    - '{{ Defgate }}'
-  ignore_errors: yes
-  async: 15
-  poll: 0
-
-- name: Wait for 10min
-  wait_for_connection:
-    delay: 5
-    timeout: 600
-
-- name: "[DNS] Set DNS Address in Operation"
+- name: "[DNS] Set DNS Address"
   win_dns_client:
-    adapter_names: '{{ item.nic_name }}'
-    ipv4_addresses: '{{ item.dns }}'
+    adapter_names:  '{{ item.names.nic_name }}'
+    ipv4_addresses: 
+      - '{{ item.dnslist.dns1 }}'
+      - '{{ item.dnslist.dns2 }}'
   with_items:
-    - '{{ Defgate }}'
+    - '{{ Network }}'
   ignore_errors: yes
 
 

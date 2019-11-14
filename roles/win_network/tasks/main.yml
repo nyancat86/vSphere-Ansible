@@ -1,4 +1,7 @@
 ---
+- set_fact:
+    Network: "{{ BaseNetwork + AppendNetwork }}"
+
 - name: Change hostname to inventory_hostname
   win_command: powershell.exe -
   args:
@@ -36,6 +39,23 @@
     type: dword
     data: 0xff
 
+
+- name: "[DNS] Reset DNS Address ALL"
+  win_dns_client:
+    adapter_names: '{{ item.names.nic_name }}'
+    ipv4_addresses: 
+      - ''
+  with_items:
+    - '{{ Network }}'
+
+- name: "[DNS] Unset RegisterThisConnectionsAddress"
+  win_command: powershell.exe - 
+  args:
+    stdin: Get-NetAdapter -InterfaceDescription "{{ item.names.adapter }}" | Set-DnsClient -RegisterThisConnectionsAddress:$False
+  ignore_errors: yes
+  with_items:
+    - '{{ Network }}'
+
 - name: "[DNS] Set DNS Address in Operation"
   win_dns_client:
     adapter_names: Operation
@@ -58,9 +78,9 @@
 - name: Enable SMB MultiChannel Server setting
   win_command: powershell.exe -
   args:
-    stdin: Set-SmbServerConfiguration -EnableMultiChannel $true -Force
+    stdin: Set-SmbServerConfiguration -EnableMultiChannel $false -Force
 
 - name: Enable SMB MultiChannel Client setting
   win_command: powershell.exe -
   args:
-    stdin: Set-SmbClientConfiguration -EnableMultiChannel $true -Force
+    stdin: Set-SmbClientConfiguration -EnableMultiChannel $false -Force

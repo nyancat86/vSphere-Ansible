@@ -1,0 +1,6 @@
+{% for item in Network %}
+Get-NetAdapter -Name "{{ item.names.nic_name }}" | Remove-NetRoute -DestinationPrefix 0.0.0.0/0 -confirm:$false
+Get-NetAdapter -Name "{{ item.names.nic_name }}" | Remove-NetIPAddress -confirm:$false
+Get-NetAdapter -Name "{{ item.names.nic_name }}" | New-NetIPAddress -AddressFamily IPv4 -IPAddress {{ item.interface.ip }} -Prefix {{ prefix | ipaddr('prefix') }} -DefaultGateway {{ item.interface.gateway }}
+{{ pfaddr | ipaddr('network') }}
+{% endfor %}
