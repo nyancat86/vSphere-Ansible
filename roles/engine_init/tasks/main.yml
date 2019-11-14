@@ -1,22 +1,12 @@
 ---
-- name: Format host_vars
-  file:
-    path: ./host_vars
-    state: "absent"
-    mode: 755
-    force: true
-
 - name: Initialize host_vars
   file:
-    path: ./host_vars
+    path:  '{{ item }}'
     state: "directory"
-    mode: 755
-    force: true
+    force: yes
+  with_items:
+    - ./host_vars
+    - ./group_vars
+    - ./log
 
-- name: Initialize group_vars
-  file:
-    path: ./host_vars
-    state: "directory"
-    mode: 755
-    force: true
 

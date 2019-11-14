@@ -1,7 +1,31 @@
 ---
+# - name: Remove Item
+#   file:
+#     path: '{{ item }}'
+#     state: "absent"
+#     force: yes
+#   with_items:
+#     - ./host_vars/{{ inventory_hostname }}.yml
+#   delegate_to: localhost
+
+- set_fact:
+    Network: "{{ BaseNetwork + AppendNetwork }}"
+
 - name: export nic vars
   template:
     src:  inventory.j2
     dest: ./host_vars/{{ inventory_hostname }}.yml
   delegate_to: localhost
+
+
+
+# - name: Create Machine dir to Ansible-Engine
+#   file:
+#     path: './log/{{ inventory_hostname }}'
+#     state: directory
+#     force: yes
+#   delegate_to: localhost
+
+
+
 

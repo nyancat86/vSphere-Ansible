@@ -1,0 +1,12 @@
+---
+{% for item in groups %}
+ansible_host:       '{{ host_segment }}.{{ host_startip + loop.index0 |int }}'
+{% if interface1_startip  is defined %} interface1_ipaddr:  '{{ interface1_segment }}.{{ interface1_startip + loop.index0 |int }}' {% endif %}
+{% if interface2_startip  is defined %} interface2_ipaddr:  '{{ interface2_segment }}.{{ interface2_startip + loop.index0 |int }}' {% endif %}
+num_cpus:             {{ num_cpus  }}
+memory_mb:            {{ memory_mb }}
+disk_size:            {{ disk_size }}
+datastore:            '{{ datastore }}'
+{% endfor %}
+
+
