@@ -1,7 +1,5 @@
 inventory.yml
 site.yml
-test.yml
-makelist.yml
 dr_inventory.yml
 
 ova/
@@ -9,3 +7,4 @@ lists/
 host_vars/
 group_vars/
 roles/win_hinemos
+log/

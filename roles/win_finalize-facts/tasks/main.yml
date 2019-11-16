@@ -1,0 +1,87 @@
+---
+- name: '[FACTS] Get remote date'
+  run_once: yes 
+  win_command: powershell.exe -
+  args:
+    stdin: Get-Date -Uformat %Y%m%d
+  register: date
+
+- name: '[PUSH:CheckParameter] Push files to destination'
+  win_copy:
+    src: '{{ item }}'
+    dest: C:\JBS_work\
+  with_items:
+    - Parameter_Check.bat
+    - Parameter_Check.ps1
+- name: '[ACTION:CheckParameter] Kickstart batch file'
+  win_shell: C:\JBS_work\Parameter_Check.bat
+- name: '[ACTION:CheckParameter] Fetch output data' 
+  win_command: powershell.exe -
+  args:
+    stdin: Get-Content C:\JBS_work\{{ inventory_hostname }}_{{ datenum }}_Paramater_Check.txt
+  vars: 
+    datenum: "{{ date.stdout|regex_replace ('\\r','')|regex_replace ('\\n','') }}"
+  register: result
+- name: '[ACTION:CheckParameter] Pull output data from remote'
+  template:
+    src: result.j2
+    dest: ./log/{{ inventory_hostname }}_{{ datenum }}_Paramater_Check.txt
+  vars: 
+    datenum: "{{ date.stdout|regex_replace ('\\r','')|regex_replace ('\\n','') }}"
+    context: "{{ result.stdout }}"
+  delegate_to: localhost
+- name: '[ACTION:CheckParameter] Wipe data'  
+  win_file:
+    path: C:\JBS_work\{{ inventory_hostname }}_{{ datenum }}_Paramater_Check.txt
+    state: absent
+  vars: 
+    datenum: "{{ date.stdout|regex_replace ('\\r','')|regex_replace ('\\n','') }}"
+
+- debug:
+    var: '{{ item }}'
+  with_items:
+    - power_plan
+    - time_zone
+    - check_license
+
+- name: '[ACTION] Remove Junk File'
+  win_file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - C:\Users\Administrator\.ansible_async
+    - C:\Users\Administrator\machine-parm
+    - C:\JBS_work\Parameter_Check.bat
+    - C:\JBS_work\Parameter_Check.ps1
+    - C:\JBS_work\{{ inventory_hostname }}_{{ datenum }}_Paramater_Check.txt
+
+
+# - name: "[Facts 01] Get OS License"
+#   win_product_facts:
+#   register: win_license_facts
+# - debug:
+#     var:  win_license_facts
+# - name: "[Facts 02] Custom Facts"
+#   win_command: powershell.exe - 
+#   args:
+#     stdin: Get-WmiObject Win32_QuickFixEngineering | ft -autosize
+#   register: result
+# - debug:
+#     var:  result
+
+# - name: "[PUSH] Recovery Ansible"
+#   win_template:
+#     src:  recovery.j2
+#     dest: C:\recovery.ps1
+
+# - name: "[PUSH] Destroy Ansible"
+#   win_template:
+#     src:  destroy.j2
+#     dest: C:\destroy.ps1
+
+# - name: [ACTION] Delete Ansilble logs
+#   win_command: powershell.exe - 
+#   args:
+#     stdin: powershell.exe -File C:\destroy.ps1
+#   async: 10
+#   poll: 0   

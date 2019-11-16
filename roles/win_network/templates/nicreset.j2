@@ -1,0 +1,3 @@
+{% for item in Network %}
+netsh interface ip set address "{{ item.names.nic_name }}" static {{ item.interface.ip }} {{ item.interface.netmask }} {{ item.interface.gateway }}
+{% endfor %}

@@ -1,9 +1,0 @@
----
-- name: Add a new vCenter license
-  vcenter_license:
-    hostname:     '{{ ansible_host }}'
-    username:     '{{ esxi_user }}'
-    password:     '{{ esxi_password }}'
-    license:      '{{ esxi_license }}'
-    state: present
-  delegate_to: localhost

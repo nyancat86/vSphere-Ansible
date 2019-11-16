@@ -1,0 +1,43 @@
+---
+- name: '[ACTION:Hinemos] Uninstall Service'
+  win_command: powershell.exe - 
+  args:
+    stdin: Start-Process 'C:\Program Files (x86)\Hinemos\Agent6.2.2\bin\HinemosAgentService64.exe' '-uninstall Hinemos_6.2_Agent'
+- win_reboot:
+- name: '[ACTION:Hinemos] Install Service'
+  win_command: powershell.exe -
+  args:
+    stdin: Start-Process 'C:\Program Files (x86)\Hinemos\Agent6.2.2\bin\RegistAgentService.bat'
+
+- name: '[ACTION:VBCorp] Install Service'
+  win_shell: C:\JBS_work\VBCorp\q20_Connect_hq_sat_0200_20191106_64bit.exe
+- pause:
+    second: 300
+- win_reboot:
+
+# - name: '[ACTION:WindowsFeatuer] Install Windows Feature'
+#   win_feature:
+#     name:   "{{ item }}"
+#     state:  present
+#   with_items:
+#     - "{{ windows_feature_set }}"
+
+# - name: '[ACTION:WindowsFeatuer] Install NET-Framework-Core (No Checked)'
+#   win_feature:
+#     name: NET-Framework-Core
+#     source: X:\sources\sxs
+#     state: present
+
+# - name: Facts Feature
+#   win_command: powershell.exe -
+#   args:
+#     stdin: Get-WindowsFeature
+#   register: result
+
+# - name: Out File
+#   delegate_to: localhost
+#   copy:
+#     content: "{{ report }}"
+#     dest: "{{ inventory_dir }}/Logs/{{ inventory_hostname }}/WinFeature.log "
+#   vars: 
+#     report: "{{ result.stdout }}"

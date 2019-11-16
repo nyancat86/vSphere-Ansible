@@ -1,0 +1,167 @@
+---
+- name: '[ACTION:Network] Set Default Gateway for Operation'
+  changed_when: '"0.0.0.0" not in result.stdout_lines'
+  win_command: powershell.exe -
+  args:
+    stdin: netsh interface ip set address "{{ Network[0].names.nic_name }}" static {{ Network[0].interface.ip }} {{ Network[0].interface.netmask }} {{ Network[0].out_going.gateway }}
+  register: result
+  ignore_errors: yes
+- name: "[ACTION:Network] Set DNS Address for Operation"
+  win_dns_client:
+    adapter_names: Operation
+    ipv4_addresses: '{{ Network[0].out_going.gateway }}
+
+- name: '[ACTION:License] Register product key'
+  win_command: powershell.exe -
+  args:
+    stdin: cscript //Nologo $ENV:SystemRoot\System32\slmgr.vbs /ipk {{ license }}
+- name: '[FACTS:License] Check product key'
+  failed_when: ansible_os_license_status  == 'Notification'
+  win_product_facts:
+  register: check_license
+
+- name: '[ACTION:PowerPlan] Change power plan'
+  win_power_plan:
+    name: 'バランス'
+  register: power_plan
+
+# Output:
+# ok: [EXAMPLE] => {
+#     "all_available_plans": {
+#         "バランス": true,
+#         "省電力": false,
+#         "高パフォーマンス": false
+#     },
+#     "changed": false,
+#     "invocation": {
+#         "module_args": {
+#             "name": "バランス"
+#         }
+#     },
+#     "power_plan_enabled": true,
+#     "power_plan_name": "バランス"
+# }
+
+- name: '[ACTION:Timezone] Set timezone'
+  win_timezone:
+    timezone: Tokyo Standard Time
+  register: time_zone
+
+# See more:
+# https://docs.microsoft.com/en-us/previous-versions/windows/embedded/ms912391(v=winembedded.11)?redirectedfrom=MSDN
+
+# Output:
+# ok: [EXAMPLE] => {
+#     "changed": false,
+#     "previous_timezone": "Tokyo Standard Time",
+#     "timezone": "Tokyo Standard Time"
+# }
+
+- name: '[FACTS:Pagefile] Set Pagefile size'
+  win_pagefile:
+    drive: C
+    initial_size: '{{ (memory_mb+300)|int|abs }}'
+    maximum_size: '{{ (memory_mb+300)|int|abs }}'
+    override: yes
+    state: present
+  register: set_pagefile
+
+# Output
+# ok: [EXAMPLE] => {
+#     "set_pagefile": {
+#         "changed": true,
+#         "failed": false
+#     }
+# }
+
+- name: '[ACTION:UserSetting] No Expired password for Administrator'
+  changed_when: '"successful" not in result.stdout_lines'
+  win_command: cmd.exe - 
+  args:
+    stdin: wmic UserAccount where Name="Administrator" set PasswordExpires=False
+  register: result
+
+# Output:
+# changed: [EXAMPLE] => {
+#     "changed": true,
+#     "cmd": "cmd.exe -",
+#     "delta": "0:00:00.125006",
+#     "end": "2019-11-15 04:32:47.774783",
+#     "rc": 0,
+#     "start": "2019-11-15 04:32:47.649777",
+#     "stderr": "",
+#     "stderr_lines": [],
+#     "stdout": "Microsoft Windows [Version 10.0.14393]\r\n(c) 2016 Microsoft Corporation. All rights reserved.\r\n\r\nC:\\Users\\Administrator>wmic UserAccount where Name=\"Administrator\" set PasswordExpires=False\r\nUpdating property(s) of '\\\\WIN-MINPC\\ROOT\\CIMV2:Win32_UserAccount.Domain=\"WIN-MINPC\",Name=\"Administrator\"'\r\r\nProperty(s) update successful.\r\r\n\r\nC:\\Users\\Administrator>",
+#     "stdout_lines": [
+#         "Microsoft Windows [Version 10.0.14393]",
+#         "(c) 2016 Microsoft Corporation. All rights reserved.",
+#         "",
+#         "C:\\Users\\Administrator>wmic UserAccount where Name=\"Administrator\" set PasswordExpires=False",
+#         "Updating property(s) of '\\\\WIN-MINPC\\ROOT\\CIMV2:Win32_UserAccount.Domain=\"WIN-MINPC\",Name=\"Administrator\"'",
+#         "",
+#         "Property(s) update successful.",
+#         "",
+#         "",
+#         "C:\\Users\\Administrator>"
+#     ]
+# }
+
+- name: '[ACTION] Set RAM dump '
+  changed_when: '"successful" not in result.stdout_lines'
+  win_command: powershell.exe -
+  args:
+    stdin: wmic RECOVEROS set DebugInfoType=1
+  register: result
+
+# Output:
+# changed: [EXAMPLE] => {
+#     "changed": true,
+#     "cmd": "powershell.exe -",
+#     "delta": "0:00:00.593754",
+#     "end": "2019-11-15 04:32:50.446655",
+#     "rc": 0,
+#     "start": "2019-11-15 04:32:49.852900",
+#     "stderr": "",
+#     "stderr_lines": [],
+#     "stdout": "Updating property(s) of '\\\\WIN-MINPC\\ROOT\\CIMV2:Win32_OSRecoveryConfiguration.Name=\"Microsoft Windows Server 2016 Standard|C:\\\\Windows|\\\\Device\\\\Harddisk0\\\\Partition3\"'\r\r\nProperty(s) update successful.\r\r\n",
+#     "stdout_lines": [
+#         "Updating property(s) of '\\\\WIN-MINPC\\ROOT\\CIMV2:Win32_OSRecoveryConfiguration.Name=\"Microsoft Windows Server 2016 Standard|C:\\\\Windows|\\\\Device\\\\Harddisk0\\\\Partition3\"'",
+#         "",
+#         "Property(s) update successful.",
+#         ""
+#     ]
+# }
+
+
+- name: '[ACTION:SMB MultiChannel] SMB MultiChannel Server setting False'
+  win_command: powershell.exe -
+  args:
+    stdin: Set-SmbServerConfiguration -EnableMultiChannel:$false -Force; Get-SmbClientConfiguration > ./result; Get-Content ./result | Select-String "EnableMultiChannel" | Select-String "False"
+  register: result
+  changed_when: '"False" not in result.stdout'
+
+- name: '[ACTION:SMB MultiChannel] SMB MultiChannel Client setting False'
+  win_command: powershell.exe -
+  args:
+    stdin: Set-SmbClientConfiguration -EnableMultiChannel:$false -Force; Get-SmbClientConfiguration > ./result; Get-Content ./result | Select-String "EnableMultiChannel" | Select-String "False"
+  register: result
+  changed_when: '"False" not in result.stdout'
+
+
+
+## Testing 
+# - name: Transfer target
+#   win_copy:
+#     src: ./KB_file/target.msu
+#     dest: "C:\secure"
+#     force: yes
+
+# - name: Running Update
+#   win_command: wusa.exe -
+#   args:
+#    # stdout: C:/work/Windows8.1-KB3079904-x64.msu /extract:C:/work/ 一度確認する
+
+# - name: Override test 
+#   win_command: pkgmgr.exe -
+#   args:
+#    # stdout: /n:C:/work/Windows8.1-KB3079904-x64.xml /quiet /norestart

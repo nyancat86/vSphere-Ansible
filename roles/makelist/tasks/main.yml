@@ -1,6 +1,0 @@
----
-- name: list inventory
-  template:
-    src:  list.j2
-    dest: ./lists/{{ inventory_hostname }}-lists
-  delegate_to: localhost

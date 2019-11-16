@@ -1,7 +1,0 @@
-- name: Set C pagefile, override if exists
-  win_pagefile:
-    drive: C
-    initial_size: '{{ (memory_mb+300)|int|abs }}'
-    maximum_size: '{{ (memory_mb+300)|int|abs }}'
-    override: yes
-    state: present

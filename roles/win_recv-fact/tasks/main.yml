@@ -1,8 +1,0 @@
----
-- name: '[Download] Parmeta' 
-  win_copy:
-    src: C:\JBS_work\{{ inventory_hostname }}_{{ datenum }}_Paramater_Check.txt
-    remote_src: yes
-    dest: ./machine-parm/
-  vars:
-    datenum: "{{ date.stdout }}"
