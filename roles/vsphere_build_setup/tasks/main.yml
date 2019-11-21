@@ -1,0 +1,130 @@
+---
+
+- name: Add a new vCenter license
+  vcenter_license:
+    hostname: '{{ vcenter_hostname }}'
+    username: '{{ vcenter_username }}'
+    password: '{{ vcenter_password }}'
+    license: '{{ vcenter_license }}'
+    state: present
+  delegate_to: localhost
+
+- name: Add a new vCenter license
+  vcenter_license:
+    hostname:     '{{ ansible_host }}'
+    username:     '{{ esxi_user }}'
+    password:     '{{ esxi_password }}'
+    license:      '{{ esxi_license }}'
+    state: present
+  delegate_to: localhost
+
+- name: Create Datacenter
+  vmware_datacenter:
+    hostname: '{{ vcenter_hostname }}'
+    username: '{{ vcenter_username }}'
+    password: '{{ vcenter_password }}'
+    datacenter_name: '{{ datacenter }}'
+    validate_certs: no
+    state: present
+  delegate_to: localhost
+
+- name: Create Cluster
+  vmware_cluster:
+    hostname: '{{ vcenter_hostname }}'
+    username: '{{ vcenter_username }}'
+    password: '{{ vcenter_password }}'
+    datacenter_name: '{{ datacenter }}'
+    cluster_name: '{{ cluster }}'
+    enable_ha: no
+    enable_drs: yes
+    enable_vsan: yes
+    validate_certs: no
+    vsan_auto_claim_storage: yes
+  delegate_to: localhost
+
+
+- name: Add ESXi Host to vCenter
+  vmware_host:
+    hostname: '{{ vcenter_hostname }}'
+    username: '{{ vcenter_username }}'
+    password: '{{ vcenter_password }}'
+    datacenter: '{{ datacenter }}'
+    cluster_name: '{{ cluster }}'
+    #esxi_hostname: '{{ inventory_hostname }}.{{ domain_network }}'
+    esxi_hostname: '{{ ansible_host }}'
+    esxi_username: '{{ esxi_user }}'
+    esxi_password: '{{ esxi_password }}'
+    state: present
+    validate_certs: no
+  delegate_to: localhost
+
+- name: Create vm folders on given datacenter
+  vcenter_folder:
+    hostname: '{{ vcenter_hostname }}'
+    username: '{{ vcenter_username }}'
+    password: '{{ vcenter_password }}'
+    datacenter_name: '{{ datacenter }}'
+    folder_name: '{{ item.name }}'
+    folder_type: '{{ item.type }}'
+    state: '{{ item.state }}'
+    validate_certs: no
+  delegate_to: localhost
+  with_items:
+    - '{{ Folders }}'
+
+- name: Add resource pool to vCenter
+  vmware_resource_pool:
+    hostname: '{{ vcenter_hostname }}'
+    username: '{{ vcenter_username }}'
+    password: '{{ vcenter_password }}'
+    datacenter: '{{ datacenter }}'
+    cluster: '{{ cluster }}'
+    resource_pool: '{{ item.name }}'
+    mem_shares: normal
+    mem_limit: -1
+    mem_reservation: 0
+    mem_expandable_reservations: yes
+    cpu_shares: normal
+    cpu_limit: -1
+    cpu_reservation: 0
+    cpu_expandable_reservations: yes
+    state: present
+    validate_certs: no
+  delegate_to: localhost
+  with_items:
+    - '{{ ResourcePools }}'
+
+# - name: Create datastore cluster
+#   vmware_datastore_cluster:
+#     hostname: '{{ vcenter_hostname }}'
+#     username: '{{ vcenter_username }}'
+#     password: '{{ vcenter_password }}'
+#     datacenter_name: '{{ datacenter }}'
+#     datastore_cluster_name: '{{ datastore }}'
+#     state: present
+#     validate_certs: no
+#   delegate_to: localhost
+
+# - name: Configure VSAN
+#   vmware_vsan_cluster:
+#     hostname: "{{ ansible_host }}"
+#     username: '{{ esxi_user }}'
+#     password: '{{ esxi_password }}'
+#     validate_certs: no
+#   delegate_to: localhost
+#   register: vsan_cluster
+
+- name: Add Management Network VM
+  vmware_portgroup:
+    hostname: "{{ vcenter_hostname }}"
+    username: "{{ vcenter_username }}"
+    password: "{{ vcenter_password }}"
+    cluster_name: "{{ cluster }}"
+    switch_name: "{{ item.vswitch }}"
+    portgroup_name: "{{ item.pg_name }}"
+    vlan_id: "{{ item.vlan_id }}"
+    validate_certs: no
+    state: '{{ item.state }}'
+  delegate_to: localhost
+  with_items:
+    - "{{ Networks }}"

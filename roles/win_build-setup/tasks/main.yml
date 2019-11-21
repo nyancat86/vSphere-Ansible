@@ -1,0 +1,317 @@
+---
+- name: '[ACTION:UAC] Disable UAC'
+  win_regedit:
+    path: HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\policies\system
+    name: '{{ item }}'
+    type: dword
+    data: 0
+  with_items:
+    - EnableLUA
+    - ConsentPromptBehaviorAdmin
+    - PromptOnSecureDesktop
+
+
+
+- name: '[ACTION:SNMP] PermittedManager'
+  win_regedit:
+    path: HKLM:\SYSTEM\CurrentControlSet\services\SNMP\Parameters\PermittedManagers
+    name: '2'
+    type: string
+    data: '10.47.3.83'
+- name: '[ACTION:SNMP] ValidCommunities'
+  win_regedit:
+    path: HKLM:\SYSTEM\CurrentControlSet\services\SNMP\Parameters\ValidCommunities
+    name: 'mhimailpub'
+    type: dword
+    data: 4
+
+
+- name: '[ACTION:Firewall] Disabled all'
+  win_firewall:
+    state: disabled
+    profiles:
+    - Domain
+    - Private
+    - Public
+
+
+# - name: '[ACTION:Network] Change InterfaceName'
+#   changed_when: 'item.names.nic_name not in result.stdout_lines'
+#   ignore_errors: yes
+#   win_command: powershell.exe -
+#   args:
+#     stdin: Get-NetAdapter -InterfaceDescription "{{ item.names.adapter }}" | Rename-NetAdapter -NewName "{{ item.names.nic_name }}"; Get-NetAdapter -InterfaceDescription "{{ item.names.adapter }}" | Select-Object Name
+#   register: result
+#   with_items:
+#     - '{{ BaseNetwork }}'
+# - name: '[ACTION:Network] Change gateway on first NIC'
+#   win_command: powershell.exe -
+#   args:
+#     stdin: netsh interface ip set address "{{ item.names.nic_name }}" static {{ item.interface.ip }}  {{ item.out_going.netmask }} {{ item.out_going.gateway }}
+#   with_items:
+#     - '{{ BaseNetwork }}'
+#   async: 15
+#   poll:  0
+# - name: '[ACTION:ResetInterface] Fetch Connection'
+#   wait_for_connection:
+#     delay: 5
+#     timeout: 600
+# - name: '[ACTION:Network] Set DNS Address for Operation'
+#   win_dns_client:
+#     adapter_names: Operation
+#     ipv4_addresses: '{{ item.out_going.gateway }}'
+#   with_items:
+#     - '{{ BaseNetwork }}'
+
+
+- name: '[FACTS:License] Check product key'
+  win_product_facts:
+  register: check_license
+- name: '[ACTION:License] Push product key'
+  win_command: powershell.exe -
+  when: ansible_os_license_status != 'Licensed'
+  args:
+    stdin: cscript //Nologo $ENV:SystemRoot\System32\slmgr.vbs /ipk {{ license }}
+- name: '[ACTION:License] Register product key'
+  when: ansible_os_license_status != 'Licensed'
+  win_command: powershell.exe -
+  args:
+    stdin: cscript //Nologo $ENV:SystemRoot\System32\slmgr.vbs /ato
+- name: '[FACTS:License] Check product key'
+  failed_when: ansible_os_license_status  != 'Licensed'
+  win_product_facts:
+  register: check_license
+
+
+- name: '[ACTION:PowerPlan] Change power plan'
+  win_power_plan:
+    name: 'バランス'
+  register: power_plan
+
+## Output:
+## ok: [EXAMPLE] => {
+##     "all_available_plans": {
+##         "バランス": true,
+##         "省電力": false,
+##         "高パフォーマンス": false
+##     },
+##     "changed": false,
+##     "invocation": {
+##         "module_args": {
+##             "name": "バランス"
+##         }
+##     },
+##     "power_plan_enabled": true,
+##     "power_plan_name": "バランス"
+## }
+
+
+- name: '[ACTION:Timezone] Set timezone'
+  win_timezone:
+    timezone: Tokyo Standard Time
+  register: time_zone
+
+## See more:
+## https://docs.microsoft.com/en-us/previous-versions/windows/embedded/ms912391(v=winembedded.11)?redirectedfrom=MSDN
+
+## Output:
+## ok: [EXAMPLE] => {
+##     "changed": false,
+##     "previous_timezone": "Tokyo Standard Time",
+##     "timezone": "Tokyo Standard Time"
+## }
+
+
+
+- name: '[FACTS:Pagefile] Set Pagefile size'
+  win_pagefile:
+    drive: C
+    initial_size: '{{ (memory_mb+300)|int|abs }}'
+    maximum_size: '{{ (memory_mb+300)|int|abs }}'
+    state: present
+  register: set_pagefile
+
+## Output
+## ok: [EXAMPLE] => {
+##     "set_pagefile": {
+##         "changed": true,
+##         "failed": false
+##     }
+## }
+
+
+- name: '[ACTION:UserSetting] No Expired password for Administrator'
+  changed_when: '"successful" not in result.stdout'
+  win_command: cmd.exe - 
+  args:
+    stdin: wmic UserAccount where Name="Administrator" set PasswordExpires=False
+  register: result
+
+## Output:
+## changed: [EXAMPLE] => {
+##     "changed": true,
+##     "cmd": "cmd.exe -",
+##     "delta": "0:00:00.125006",
+##     "end": "2019-11-15 04:32:47.774783",
+##     "rc": 0,
+##     "start": "2019-11-15 04:32:47.649777",
+##     "stderr": "",
+##     "stderr_lines": [],
+##     "stdout": "Microsoft Windows [Version 10.0.14393]\r\n(c) 2016 Microsoft Corporation. All rights reserved.\r\n\r\nC:\\Users\\Administrator>wmic UserAccount where Name=\"Administrator\" set PasswordExpires=False\r\nUpdating property(s) of '\\\\WIN-MINPC\\ROOT\\CIMV2:Win32_UserAccount.Domain=\"WIN-MINPC\",Name=\"Administrator\"'\r\r\nProperty(s) update successful.\r\r\n\r\nC:\\Users\\Administrator>",
+##     "stdout_lines": [
+##         "Microsoft Windows [Version 10.0.14393]",
+##         "(c) 2016 Microsoft Corporation. All rights reserved.",
+##         "",
+##         "C:\\Users\\Administrator>wmic UserAccount where Name=\"Administrator\" set PasswordExpires=False",
+##         "Updating property(s) of '\\\\WIN-MINPC\\ROOT\\CIMV2:Win32_UserAccount.Domain=\"WIN-MINPC\",Name=\"Administrator\"'",
+##         "",
+##         "Property(s) update successful.",
+##         "",
+##         "",
+##         "C:\\Users\\Administrator>"
+##     ]
+## }
+
+
+- name: '[ACTION] Set RAM dump '
+  changed_when: '"successful." not in result.stdout'
+  win_command: powershell.exe -
+  args:
+    stdin: wmic RECOVEROS set DebugInfoType=1
+  register: result
+
+## Output:
+## changed: [EXAMPLE] => {
+##     "changed": true,
+##     "cmd": "powershell.exe -",
+##     "delta": "0:00:00.593754",
+##     "end": "2019-11-15 04:32:50.446655",
+##     "rc": 0,
+##     "start": "2019-11-15 04:32:49.852900",
+##     "stderr": "",
+##     "stderr_lines": [],
+##     "stdout": "Updating property(s) of '\\\\WIN-MINPC\\ROOT\\CIMV2:Win32_OSRecoveryConfiguration.Name=\"Microsoft Windows Server 2016 Standard|C:\\\\Windows|\\\\Device\\\\Harddisk0\\\\Partition3\"'\r\r\nProperty(s) update successful.\r\r\n",
+##     "stdout_lines": [
+##         "Updating property(s) of '\\\\WIN-MINPC\\ROOT\\CIMV2:Win32_OSRecoveryConfiguration.Name=\"Microsoft Windows Server 2016 Standard|C:\\\\Windows|\\\\Device\\\\Harddisk0\\\\Partition3\"'",
+##         "",
+##         "Property(s) update successful.",
+##         ""
+##     ]
+## }
+
+
+- name: '[ACTION:SMB MultiChannel] SMB MultiChannel Server setting False'
+  win_command: powershell.exe -
+  args:
+    stdin: Set-SmbServerConfiguration -EnableMultiChannel:$false -Force; Get-SmbClientConfiguration > ./result; Get-Content ./result | Select-String "EnableMultiChannel" | Select-String "False"
+  register: result
+  changed_when: '"False" not in result.stdout'
+- name: '[ACTION:SMB MultiChannel] SMB MultiChannel Client setting False'
+  win_command: powershell.exe -
+  args:
+    stdin: Set-SmbClientConfiguration -EnableMultiChannel:$false -Force; Get-SmbClientConfiguration > ./result; Get-Content ./result | Select-String "EnableMultiChannel" | Select-String "False"
+  register: result
+  changed_when: '"False" not in result.stdout'
+
+
+- name: '[ACTION:IE_ECS] Disable Setting (Admin)'
+  win_regedit:
+    path: HKLM:\SOFTWARE\Microsoft\Active Setup\Installed Components\{A509B1A7-37EF-4b3f-8CFC-4F3A74704073}
+    name: IsInstalled
+    type: dword
+    data: 0
+- name: '[ACTION:IE_ECS] Disable Setting (User)'
+  win_regedit:
+    path: HKLM:\SOFTWARE\Microsoft\Active Setup\Installed Components\{A509B1A8-37EF-4b3f-8CFC-4F3A74704073}
+    name: IsInstalled
+    type: dword
+    data: 1
+
+
+- name: '[ACTION:RDP] Enable Service'
+  changed_when: '"fDenyTSConnections : 0" not in result.stdout'
+  win_command: powershell.exe -
+  args:
+    stdin: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server" -Name "fDenyTSConnections" -Value "0"; Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server" -Name "fDenyTSConnections"
+  register: result
+
+## Output:
+## ok: [EXAMPLE] => {
+##     "changed": false,
+##     "cmd": "powershell.exe -",
+##     "delta": "0:00:01.109279",
+##     "end": "2019-11-18 03:38:50.280350",
+##     "rc": 0,
+##     "start": "2019-11-18 03:38:49.171070",
+##     "stderr": "",
+##     "stderr_lines": [],
+##     "stdout": "\r\n\r\nfDenyTSConnections : 0\r\nPSPath             : Microsoft.PowerShell.Core\\Registry::HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Terminal S\r\n                     erver\r\nPSParentPath       : Microsoft.PowerShell.Core\\Registry::HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\r\nPSChildName        : Terminal Server\r\nPSDrive            : HKLM\r\nPSProvider         : Microsoft.PowerShell.Core\\Registry\r\n\r\n\r\n\r\n",
+##     "stdout_lines": [
+##         "",
+##         "",
+##         "fDenyTSConnections : 0",
+##         "PSPath             : Microsoft.PowerShell.Core\\Registry::HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Terminal S",
+##         "                     erver",
+##         "PSParentPath       : Microsoft.PowerShell.Core\\Registry::HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control",
+##         "PSChildName        : Terminal Server",
+##         "PSDrive            : HKLM",
+##         "PSProvider         : Microsoft.PowerShell.Core\\Registry",
+##         "",
+##         "",
+##         ""
+##     ]
+## }
+
+- name: '[ACTION:RDP] Enable UserAuth'
+  changed_when: '"UserAuthentication : 1" not in result.stdout_lines'
+  win_command: powershell.exe -
+  args:
+    stdin: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" -Name "UserAuthentication" -Value "1"; Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" -Name "UserAuthentication"
+  register: result
+
+## Output:
+## ok: [EXAMPLE] => {
+##     "changed": false,
+##     "cmd": "powershell.exe -",
+##     "delta": "0:00:00.765591",
+##     "end": "2019-11-18 03:38:54.076990",
+##     "rc": 0,
+##     "start": "2019-11-18 03:38:53.311399",
+##     "stderr": "",
+##     "stderr_lines": [],
+##     "stdout": "\r\n\r\nUserAuthentication : 1\r\nPSPath             : Microsoft.PowerShell.Core\\Registry::HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Terminal S\r\n                     erver\\WinStations\\RDP-Tcp\r\nPSParentPath       : Microsoft.PowerShell.Core\\Registry::HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Terminal S\r\n                     erver\\WinStations\r\nPSChildName        : RDP-Tcp\r\nPSDrive            : HKLM\r\nPSProvider         : Microsoft.PowerShell.Core\\Registry\r\n\r\n\r\n\r\n",
+##     "stdout_lines": [
+##         "",
+##         "",
+##         "UserAuthentication : 1",
+##         "PSPath             : Microsoft.PowerShell.Core\\Registry::HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Terminal S",
+##         "                     erver\\WinStations\\RDP-Tcp",
+##         "PSParentPath       : Microsoft.PowerShell.Core\\Registry::HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Terminal S",
+##         "                     erver\\WinStations",
+##         "PSChildName        : RDP-Tcp",
+##         "PSDrive            : HKLM",
+##         "PSProvider         : Microsoft.PowerShell.Core\\Registry",
+##         "",
+##         "",
+##         ""
+##     ]
+## }
+
+
+
+#### Testing 
+## - name: Transfer target
+##   win_copy:
+##     src: ./KB_file/target.msu
+##     dest: "C:\secure"
+##     force: yes
+
+## - name: Running Update
+##   win_command: wusa.exe -
+##   args:
+##    ## stdout: C:/work/Windows8.1-KB3079904-x64.msu /extract:C:/work/ 一度確認する
+
+## - name: Override test 
+##   win_command: pkgmgr.exe -
+##   args:
+##    ## stdout: /n:C:/work/Windows8.1-KB3079904-x64.xml /quiet /norestart

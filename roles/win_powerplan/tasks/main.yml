@@ -1,6 +1,0 @@
----
-- name: Change power plan to high performance
-  win_power_plan:
-    name: 'バランス' 
-  register: result
-

@@ -1,0 +1,8 @@
+{% for item in Network %}
+{% if item.interface.gateway != "" %}
+Get-NetAdapter -InterfaceDescription "{{ item.names.adapter }}"| Remove-NetIPAddress -confirm:$false; Get-NetAdapter -InterfaceDescription "{{ item.names.adapter }}"| New-NetIPAddress  -IPAddress {{ item.interface.ip }} -PrefixLength {{ calc | ipaddr('prefix') }}  -DefaultGateway {{ item.interface.gateway }}
+{% endif %}
+{% if item.interface.gateway == "" %}
+Get-NetAdapter -InterfaceDescription "{{ item.names.adapter }}"| Remove-NetIPAddress -confirm:$false; Get-NetAdapter -InterfaceDescription "{{ item.names.adapter }}"| New-NetIPAddress  -IPAddress {{ item.interface.ip }} -PrefixLength {{ calc | ipaddr('prefix') }} 
+{% endif %}
+{% endfor %}

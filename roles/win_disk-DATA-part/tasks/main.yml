@@ -1,41 +1,55 @@
 ---
-- name: "Set to online target disk"
+- name: '[ACTION] Change to online for target'
   when: item.Disk.size_gb != 0
   win_command: powershell.exe -
   args:
     stdin: Set-Disk -Number {{ item.Part.unit_number }} -IsOffline $false
   with_items:
     - '{{ Disks }}'
+
+- name: '[TEST:PATH] Check flag'
+  changed_when: 
+    - item.Disk.size_gb != 0
+    - '"False" in result.stdout_lines'
+  win_command: powershell.exe -
+  args:
+    stdin: Test-Path {{ item.Part.letter }}:\
+  with_items:
+    - '{{ Disks }}' 
   register: result
 
-- name: "Initialize target "
-  when: item.Disk.size_gb != 0
+
+- name: '[ACTION] Initialize disk for target'
+  when: result is changed
   win_command: powershell.exe -
   args:
     stdin: Initialize-Disk -Number {{ item.Part.unit_number }} -PartitionStyle {{ item.Part.partition_style }} -PassThru
-  ignore_errors: yes
+  ignore_errors:    yes
   with_items:
-    - '{{ Disks }}' 
+    - '{{ Disks }}'
 
-- name: "Create partition"
-  when: item.Disk.size_gb != 0
+
+
+- name: '[ACTION] Create partition for target'
+  when: result is changed
   win_partition:
-    offline:        no
-    read_only:      no
     drive_letter:   '{{ item.Part.letter }}'
     partition_size: '{{ item.Part.partition_size }}'
     disk_number:    '{{ item.Part.unit_number }}'
     state:          present
-  ignore_errors: yes
+    offline:        no
+    read_only:      no
+  ignore_errors:    yes
   with_items:
     - '{{ Disks }}' 
 
-- name: " Fast format the newly created partition as NTFS and label "
-  when: item.Disk.size_gb != 0
+
+- name: '[ACTION] Format partition for target'
+  when: result is changed
   win_format:
     drive_letter: '{{ item.Part.letter }}'
     file_system:  '{{ item.Part.fs_type }}'
     new_label:    ''
     full:         false
   with_items:
-    - '{{ Disks }}' 
+    - '{{ Disks }}'

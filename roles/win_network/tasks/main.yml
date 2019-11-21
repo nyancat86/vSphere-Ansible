@@ -1,38 +1,94 @@
 ---
 - set_fact:
     Network: "{{ BaseNetwork + AppendNetwork }}"
+  delegate_to: localhost
 
-- name: Change hostname to inventory_hostname
+- name: '[ACTION:Hostname] Change hostname'
+  changed_when: '"task_succeed" in result.stdout_lines'
   win_command: powershell.exe -
   args:
-    stdin: if( $ENV:COMPUTERNAME -ne "{{ inventory_hostname }}" ){Rename-Computer -NewName "{{ inventory_hostname }}" -Force; echo "Hostname Changed"}else{ echo "Hostname not Changed" }
+    stdin: if( ${ENV:COMPUTERNAME} -ne "{{ inventory_hostname }}" ) { Rename-Computer -NewName "{{ inventory_hostname }}" -Force; echo task_succeed }else{ echo OK }
   ignore_errors: yes
   register: result
 
-- debug:
-    msg: '{{ change_state }}'
-  vars: 
-    change_state: '{{ result.stdout_lines }}'
 
-- name: Set Interface name
+- name: '[ACTION:Network] Change InterfaceName'
+  changed_when: 'item.names.nic_name not in result.stdout_lines'
   ignore_errors: yes
   win_command: powershell.exe -
   args:
-    stdin: Get-NetAdapter -InterfaceDescription "{{ item.names.adapter }}" | Rename-NetAdapter -NewName "{{ item.names.nic_name }}"
+    stdin: Get-NetAdapter -InterfaceDescription "{{ item.names.adapter }}" | Rename-NetAdapter -NewName "{{ item.names.nic_name }}"; Get-NetAdapter -InterfaceDescription "{{ item.names.adapter }}" | Select-Object Name
   with_items:
     - "{{ Network }}"
+  ignore_errors: yes
+- name: '[ACTION:Network] Remove Default Gateway'
+  changed_when: '"0.0.0.0" not in result.stdout_lines'
+  win_command: powershell.exe -
+  args:
+    stdin: Remove-NetRoute -DestinationPrefix 0.0.0.0/0 -confirm:$false -ErrorAction SilentlyContinue; Get-NetRoute -AddressFamily IPv4 | Select-Object NextHop
+  register: result
+  ignore_errors: yes
 
 
-- name: Set to all interface ipv6 disable
+
+- name: "[PUSH:ResetInterface] Push files to destination"
+  win_template:
+    src: nicreset.j2
+    dest: C:\nicreset.ps1
+    output_encoding: SJIS 
+  with_items:
+    - "{{ win_nic }}"
+- name: '[ACTION:ResetInterface] Start IP config'
+  win_shell: C:\nicreset.ps1
+  async: 30
+  poll: 0
+- name: '[ACTION:ResetInterface] Fetch Connection'
+  wait_for_connection:
+    delay: 5
+    timeout: 600
+- name: '[CLEANUP:ResetInterface] Fetch Connection'
+  win_file:
+    path: '{{ item }}'
+    state: absent
+  with_items:
+    - C:\nicreset.ps1
+    - C:\nicreset.bat
+
+
+- name: "[ACTION:DNS] Unset RegisterThisConnectionsAddress"
+  win_command: powershell.exe - 
+  args:
+    stdin: Get-NetAdapter -InterfaceDescription "{{ item.names.adapter }}" | Set-DnsClient -RegisterThisConnectionsAddress:$False
+  ignore_errors: yes
+  with_items:
+    - '{{ Network }}'
+- name: "[ACTION:DNS] Set RegisterThisConnectionsAddress"
+  when: '"" != item.interface.gateway'
+  win_command: powershell.exe - 
+  args:
+    stdin: Get-NetAdapter -InterfaceDescription "{{ item.names.adapter }}" | Set-DnsClient -RegisterThisConnectionsAddress:$True
+  ignore_errors: yes
+  with_items:
+    - '{{ Network }}'
+- name: '[ACTION:DNS] Set DNS for target interface'
+  win_dns_client:
+    adapter_names:  '{{ item.names.nic_name }}'
+    ipv4_addresses: '{{ item.dnslist }}'
+  with_items:
+    - '{{ Network }}'
+  ignore_errors: yes
+
+
+- name: '[ACTION:Network-IPv6]Disable IPv6 ALL Interface'
+  changed_when: '"True" not in result.stdout_lines'
   ignore_errors: yes
   win_command: powershell.exe -
   args:
-    stdin: Get-NetAdapter -InterfaceDescription "{{ item.names.adapter }}" | Disable-NetAdapterBinding  -ComponentID ms_tcpip6
+    stdin: Get-NetAdapter -InterfaceDescription "{{ item.names.adapter }}" | Disable-NetAdapterBinding  -ComponentID ms_tcpip6; Get-NetAdapterBinding -InterfaceDescription "{{ item.names.adapter }}" -ComponentID ms_tcpip6 | Select-Object Enabled
   with_items:
     - "{{ Network }}"
-
-
-- name: Disable IPv6 components
+  register: result
+- name: '[ACTION:Network-IPv6]Disable IPv6 components'
   win_regedit:
     path: HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters
     name: DisableComponents
@@ -40,47 +96,4 @@
     data: 0xff
 
 
-- name: "[DNS] Reset DNS Address ALL"
-  win_dns_client:
-    adapter_names: '{{ item.names.nic_name }}'
-    ipv4_addresses: 
-      - ''
-  with_items:
-    - '{{ Network }}'
 
-- name: "[DNS] Unset RegisterThisConnectionsAddress"
-  win_command: powershell.exe - 
-  args:
-    stdin: Get-NetAdapter -InterfaceDescription "{{ item.names.adapter }}" | Set-DnsClient -RegisterThisConnectionsAddress:$False
-  ignore_errors: yes
-  with_items:
-    - '{{ Network }}'
-
-- name: "[DNS] Set DNS Address in Operation"
-  win_dns_client:
-    adapter_names: Operation
-    ipv4_addresses: 
-      - 10.40.3.120
-
-- name: "[Gateway] Set Default Gateway"
-  win_command: powershell.exe -
-  args:
-    stdin: Get-NetAdapter -InterfaceDescription "{{ Network[0].names.adapter }}" | Remove-NetRoute -DestinationPrefix 0.0.0.0/0 -confirm:$false; Get-NetAdapter -InterfaceDescription "{{ Network[0].names.adapter }}" | Remove-NetIPAddress -confirm:$false; Get-NetAdapter -InterfaceDescription "{{ Network[0].names.adapter }}" | New-NetIPAddress -AddressFamily IPv4 -IPAddress '{{ ansible_host }}' -prefix 25 -DefaultGateway 10.40.3.120
-  ignore_errors: yes
-  async: 15
-  poll: 0
-
-- name: Wait for 10min
-  wait_for_connection:
-    delay: 5
-    timeout: 600
-
-- name: Enable SMB MultiChannel Server setting
-  win_command: powershell.exe -
-  args:
-    stdin: Set-SmbServerConfiguration -EnableMultiChannel $false -Force
-
-- name: Enable SMB MultiChannel Client setting
-  win_command: powershell.exe -
-  args:
-    stdin: Set-SmbClientConfiguration -EnableMultiChannel $false -Force

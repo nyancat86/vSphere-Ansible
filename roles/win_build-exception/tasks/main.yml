@@ -1,0 +1,53 @@
+---
+- name: '[FACTS:Pagefile] Set Pagefile size'
+  win_pagefile:
+    drive: C
+    initial_size: '32768'
+    maximum_size: '32768'
+    state: present
+  register: set_pagefile
+
+# Output
+
+# ok: [EXAMPLE] => {
+#     "set_pagefile": {
+#         "changed": true,
+#         "failed": false
+#     }
+# }
+
+- name: '[ACTION] Set RAM dump Auto'
+  changed_when: '"successful." not in result.stdout'
+  win_command: powershell.exe -
+  args:
+    stdin: wmic RECOVEROS set DebugInfoType=7
+  register: result
+
+# Output:
+
+# changed: [EXAMPLE] => {
+#     "changed": true,
+#     "cmd": "powershell.exe -",
+#     "delta": "0:00:00.593754",
+#     "end": "2019-11-15 04:32:50.446655",
+#     "rc": 0,
+#     "start": "2019-11-15 04:32:49.852900",
+#     "stderr": "",
+#     "stderr_lines": [],
+#     "stdout": "Updating property(s) of '\\\\WIN-MINPC\\ROOT\\CIMV2:Win32_OSRecoveryConfiguration.Name=\"Microsoft Windows Server 2016 Standard|C:\\\\Windows|\\\\Device\\\\Harddisk0\\\\Partition3\"'\r\r\nProperty(s) update successful.\r\r\n",
+#     "stdout_lines": [
+#         "Updating property(s) of '\\\\WIN-MINPC\\ROOT\\CIMV2:Win32_OSRecoveryConfiguration.Name=\"Microsoft Windows Server 2016 Standard|C:\\\\Windows|\\\\Device\\\\Harddisk0\\\\Partition3\"'",
+#         "",
+#         "Property(s) update successful.",
+#         ""
+#     ]
+# }
+
+
+- name: '[ACTION:WindowsFeatuer] Install Windows Feature'
+  when: '"" != item'
+  win_feature:
+    name:   "{{ item }}"
+    state:  present
+  with_items:
+    - "{{ windows_feature_set }}"

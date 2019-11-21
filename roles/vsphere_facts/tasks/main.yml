@@ -1,0 +1,47 @@
+- name: Gather some facts from a guest using the vSphere API output schema
+  vmware_guest_facts:
+    hostname: "{{ vcenter_hostname }}"
+    username: "{{ vcenter_username }}"
+    password: "{{ vcenter_password }}"
+    validate_certs: no
+    datacenter: "{{ datacenter }}"
+    name: "{{ inventory_hostname }}"
+    schema: "vsphere"
+    properties: "guest.net.network"
+    #properties: "config.hardware"
+  delegate_to: localhost
+  register: result
+
+- debug:
+    var: result
+
+
+# - file:
+#     content: "{{ facts | to_nice_json }}"
+#     dst: ./out.dat
+#     type: file
+#     mode: 755
+#   delegate_to: localhost
+
+
+# - name: listing
+#   template:
+#     src:  machinelist.j2
+#     dest: ./lists/{{ inventory_hostname }}.dat
+#   delegate_to: localhost
+
+
+# - name: "DELETE File_listed"
+#   file:
+#     path: ./lists/listed.csv
+#     state: absent
+#   delegate_to: localhost
+#   run_once: yes
+
+# - name: merge
+#   shell: |
+#     echo "HostName, Management-IP, CPU Core, Sockets, Memory Capacity," >>  ./lists/listed.csv 
+#     cat ./lists/*.dat >> ./lists/listed.csv ¥
+#     rm -rf ./lists/*.dat
+#   delegate_to: localhost
+#   run_once: yes

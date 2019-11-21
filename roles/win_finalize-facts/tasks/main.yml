@@ -1,0 +1,76 @@
+---
+# - name: '[SYNC:DATETIME]'
+#   win_command: powershell.exe - 
+#   args:
+#     stdin: Set-Date '2019/11/21 00:00:00'
+
+- name: '[FACTS] Get remote date'
+  run_once: yes 
+  win_command: powershell.exe -
+  args:
+    stdin: Get-Date -Uformat %Y%m%d
+  register: date
+
+- name: '[ACTION:CheckParameter] Push files to destination'
+  win_copy:
+    src: '{{ item }}'
+    dest: C:\JBS_work\
+  with_items:
+    - Parameter_Check.bat
+    - Parameter_Check.ps1
+- win_shell: C:\JBS_work\Parameter_Check.bat
+- win_command: powershell.exe -
+  args:
+    stdin: Get-Content C:\JBS_work\{{ inventory_hostname }}_{{ datenum }}_Paramater_Check.txt
+  vars: 
+    datenum: "{{ date.stdout|regex_replace ('\\r','')|regex_replace ('\\n','') }}"
+  register: result
+- template:
+    src: result.j2
+    dest: ./log/{{ inventory_hostname }}_{{ datenum }}_Paramater_Check.txt
+    output_encoding: utf-8
+  vars: 
+    datenum: "{{ date.stdout|regex_replace ('\\r','')|regex_replace ('\\n','') }}"
+    context: "{{ result.stdout }}"
+  delegate_to: localhost
+- win_file:
+    path: C:\JBS_work\{{ inventory_hostname }}_{{ datenum }}_Paramater_Check.txt
+    state: absent
+  vars: 
+    datenum: "{{ date.stdout|regex_replace ('\\r','')|regex_replace ('\\n','') }}"
+
+
+- name: '[FLUSH] Junk File'
+  win_file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - C:\Users\Administrator\.ansible_async
+    - C:\Users\Administrator\machine-parm
+    # - C:\JBS_work\Parameter_Check.bat
+    # - C:\JBS_work\Parameter_Check.ps1
+    # - C:\JBS_work\{{ inventory_hostname }}_{{ datenum }}_Paramater_Check.txt
+
+
+- name: "[PUSH] FILE Recovery / Destoroy "
+  win_template:
+    src:  '{{ item }}.j2'
+    dest: 'C:\JBS_work\{{ item }}.ps1'
+  with_items:
+    - recovery
+    - destroy
+
+
+
+# - name: '[ACTION:Ansible] Disable Ansible'
+#   win_command: powershell.exe - 
+#   args:
+#     stdin: powershell.exe -File C:\JBS_work\destroy.ps1
+#   poll: 0
+
+# - debug:
+#     var: '{{ item }}'
+#   with_items:
+#     - power_plan
+#     - time_zone
+#     - check_license
