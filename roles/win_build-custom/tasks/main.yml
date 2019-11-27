@@ -1,42 +1,42 @@
 ---
-- name: '[ACTION:Hinemos] Setup Hinemos Agent'
-  win_command: powershell.exe - 
-  args:
-    stdin: Start-Process 'C:\Program Files (x86)\Hinemos\Agent6.2.2\bin\HinemosAgentService64.exe' '-uninstall Hinemos_6.2_Agent'
-- pause:
-    seconds: 30
-- win_reboot:
-- win_shell: Start-Process ${ENV:ProgramFiles(x86)}\Hinemos\Agent6.2.2\bin\RegistAgentService.bat
-- pause:
-    seconds: 30
-- win_reboot:
-- win_command: powershell.exe
-  failed_when: '"Running" not in result.stdout_lines'
-  args:
-    stdin: Get-Service -Name Hinemos_6.2_Agent | Select-Object Status
-  register: result
+# - name: '[ACTION:Hinemos] Setup Hinemos Agent'
+#   win_command: powershell.exe - 
+#   args:
+#     stdin: Start-Process 'C:\Program Files (x86)\Hinemos\Agent6.2.2\bin\HinemosAgentService64.exe' '-uninstall Hinemos_6.2_Agent'
+# - pause:
+#     seconds: 30
+# - win_reboot:
+# - win_shell: Start-Process ${ENV:ProgramFiles(x86)}\Hinemos\Agent6.2.2\bin\RegistAgentService.bat
+# - pause:
+#     seconds: 30
+# - win_reboot:
+# - win_command: powershell.exe
+#   failed_when: '"Running" not in result.stdout_lines'
+#   args:
+#     stdin: Get-Service -Name Hinemos_6.2_Agent | Select-Object Status
+#   register: result
 
 
 
-- name: '[ACTION:VBCorp] Setup Service'
-  win_copy:
-    src: q21_Connect_hq_sat_0200_20191106_64bit.exe
-    dest: C:\JBS_work\VBCorp\
-    force: yes
-  register: result
-  when: result is changed
-  win_shell: C:\JBS_work\VBCorp\q21_Connect_hq_sat_0200_20191106_64bit.exe
-  register: result
-- win_reboot:
-  when: result is changed
+# - name: '[ACTION:VBCorp] Setup Service'
+#   win_copy:
+#     src: q21_Connect_hq_sat_0200_20191106_64bit.exe
+#     dest: C:\JBS_work\VBCorp\
+#     force: yes
+#   register: result
+#   when: result is changed
+#   win_shell: C:\JBS_work\VBCorp\q21_Connect_hq_sat_0200_20191106_64bit.exe
+#   register: result
+# - win_reboot:
+#   when: result is changed
 
 
 
-- name: '[ACTION:WindowsFeatuer] Install Windows Feature'
-  win_feature:
-    name:   "{{ item }}"
-    state:  present
-  with_items:
-    - "{{ windows_feature_set }}"
+# - name: '[ACTION:WindowsFeatuer] Install Windows Feature'
+#   win_feature:
+#     name:   "{{ item }}"
+#     state:  present
+#   with_items:
+#     - "{{ windows_feature_set }}"
 
 

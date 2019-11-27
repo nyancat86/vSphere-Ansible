@@ -1,18 +1,8 @@
-function inventory () {
-    $user         = "Administator" #Read-Host "Input user"
-    $pass         = "PA$$wd1910"   #Read-Host "Input pass"  
-    $start        = 100
-    $endof        = 110
-    $secure       = ConvertTo-SecureString -AsPlainText -Force $pass
-    $psc          = New-Object System.Management.Automation.PSCredential($user,$secure)
-    for ( $x = $start; $x -lt $endof; $x++){
-        $inventory = (Write-Output "10.40.3.${x}")
-        Write-Output "###########################"
-        Write-Output "[HOST:$inventory]"
-        Invoke-Command -ComputerName $inventory -FilePath $args[0] -ArgumentList $file -Credential $psc
-        #Invoke-Command -ComputerName $inventory -Scriptblock { $args[0] } -ArgumentList $command -Credential $psc
-    }
-}
-Set-Item WSMan:\localhost\Client\TrustedHosts -Value "*" -Force
-inventory($args[0])
-Set-Item WSMan:\localhost\Client\TrustedHosts -Value "" -Force
+{% for item in Network %}
+{% if item.interface.gateway != "" %}
+Get-NetAdapter -InterfaceDescription "{{ item.names.adapter }}"| Remove-NetIPAddress -confirm:$false; Get-NetAdapter -InterfaceDescription "{{ item.names.adapter }}"| New-NetIPAddress  -IPAddress {{ item.interface.ip }} -PrefixLength {{ calc | ipaddr('prefix') }}  -DefaultGateway {{ item.interface.gateway }}
+{% endif %}
+{% if item.interface.gateway == "" %}
+Get-NetAdapter -InterfaceDescription "{{ item.names.adapter }}"| Remove-NetIPAddress -confirm:$false; Get-NetAdapter -InterfaceDescription "{{ item.names.adapter }}"| New-NetIPAddress  -IPAddress {{ item.interface.ip }} -PrefixLength {{ calc | ipaddr('prefix') }} 
+{% endif %}
+{% endfor %}

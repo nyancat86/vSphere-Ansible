@@ -1,4 +1,1 @@
-{{ inventory_hostname }}:
-{% for item in result.instance.guest.net %}
-        PG: {{ item.network }} / MACADDR: {{ item.macAddress }} 
-{% endfor %}
+{{ inventory_hostname }}, {{ facts.instance.guest.net[0].ipAddress[0] }}, {{ facts.instance.config.hardware.numCPU }}, {{ facts.instance.config.hardware.numCoresPerSocket }}, {{ ((facts.instance.config.hardware.memoryMB|int)/1024)|abs }}GB({{ facts.instance.config.hardware.memoryMB }} MB), 

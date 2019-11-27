@@ -2,9 +2,6 @@
 - set_fact:
     Network: "{{ BaseNetwork + AppendNetwork }}"
 
-- set_fact:
-    Overwrite: "{{ OverwriteNetwork + AppendNetwork }}"
-
 - name: '[INIT] Flush Old data'
   file:
     path: '{{ item }}'

@@ -1,9 +1,9 @@
 ---
 - name: '[ACTION] System disk to Full size'
-  when: disk_size > 100  # Set VM template disk size
+  when: disk_size > 100
   win_partition:
-    drive_letter:       C
-    partition_size:     -1
-    partition_number:   4 # check bring your customized diskpart
-    disk_number:        0
-  ignore_errors:        yes
+    drive_letter: C
+    partition_size: -1
+    partition_number: 4 # check bring your customized diskpart
+    disk_number: 0
+  ignore_errors: yes
