@@ -1,6 +1,6 @@
 ---
 - set_fact:
-    Network: "{{ BaseNetwork + AppendNetwork }}"
+    Network: "{{ OverwriteNetwork + AppendNetwork }}"
   delegate_to: localhost
 
 - name: '[ACTION:Hostname] Change hostname'
@@ -22,10 +22,10 @@
     - "{{ Network }}"
   ignore_errors: yes
 - name: '[ACTION:Network] Remove Default Gateway'
-  changed_when: '"0.0.0.0" in result.stdout_lines'
+  changed_when: '"0.0.0.0" not in result.stdout_lines'
   win_command: powershell.exe -
   args:
-    stdin: Remove-NetRoute -DestinationPrefix 0.0.0.0/0 -confirm:$false -ErrorAction SilentlyContinue; Get-NetRoute -AddressFamily IPv4 | Select-Object DestinationPrefix
+    stdin: Remove-NetRoute -DestinationPrefix 0.0.0.0/0 -confirm:$false -ErrorAction SilentlyContinue; Get-NetRoute -AddressFamily IPv4 | Select-Object NextHop
   register: result
   ignore_errors: yes
 
@@ -53,8 +53,6 @@
   with_items:
     - C:\nicreset.ps1
     - C:\nicreset.bat
-
-
 
 
 - name: "[ACTION:DNS] Unset RegisterThisConnectionsAddress"

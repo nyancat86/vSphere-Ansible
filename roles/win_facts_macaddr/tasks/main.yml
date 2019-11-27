@@ -1,0 +1,8 @@
+---
+- name: Get macADDR
+  win_command: powershell.exe -
+  args:
+    stdin: get-Netroute
+  register: result 
+- debug:
+    var: result.stdout_lines

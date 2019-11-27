@@ -12,6 +12,15 @@ export_nic:
     allow_guest_control: yes
 {% endfor %}
 
+win_overwrite:
+{% for item in Overwrite %}
+  - adapter:        "{{ item.names.adapter }}"
+    ip:             "{{ item.interface.ip }}"
+    netmask:        "{{ item.interface.netmask }}"
+    gateway:        "{{ item.interface.gateway }}"
+    fulladdr:       "{{ item.interface.ip }}/{{ item.interface.netmask }}"
+{% endfor %}
+
 win_nic:
 {% for item in Network %}
   - adapter:        "{{ item.names.adapter }}"
@@ -20,6 +29,8 @@ win_nic:
     gateway:        "{{ item.interface.gateway }}"
     fulladdr:       "{{ item.interface.ip }}/{{ item.interface.netmask }}"
 {% endfor %}
+
+
 
 export_disk:
 {% for item in Disks %}

@@ -7,41 +7,21 @@
     datacenter: "{{ datacenter }}"
     name: "{{ inventory_hostname }}"
     schema: "vsphere"
-    properties: "guest.net.network"
-    #properties: "config.hardware"
+    #properties: "guest.net.network"
+    properties: "guest.net"
   delegate_to: localhost
   register: result
 
-- debug:
-    var: result
+
+- name: Get Interface 
+  win_command: powershell.exe -
+  args:
+    stdin: Get-NetAdapter | Select-Object Name,MacAddress
+  # with_items: '{{result.instance.guest.net }}'
+  # register: mac_to_ipaddress
 
 
-# - file:
-#     content: "{{ facts | to_nice_json }}"
-#     dst: ./out.dat
-#     type: file
-#     mode: 755
-#   delegate_to: localhost
-
-
-# - name: listing
-#   template:
+# - template:
 #     src:  machinelist.j2
-#     dest: ./lists/{{ inventory_hostname }}.dat
+#     dest: ./{{ inventory_hostname }}.log
 #   delegate_to: localhost
-
-
-# - name: "DELETE File_listed"
-#   file:
-#     path: ./lists/listed.csv
-#     state: absent
-#   delegate_to: localhost
-#   run_once: yes
-
-# - name: merge
-#   shell: |
-#     echo "HostName, Management-IP, CPU Core, Sockets, Memory Capacity," >>  ./lists/listed.csv 
-#     cat ./lists/*.dat >> ./lists/listed.csv ¥
-#     rm -rf ./lists/*.dat
-#   delegate_to: localhost
-#   run_once: yes

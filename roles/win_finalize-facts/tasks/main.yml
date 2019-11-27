@@ -12,9 +12,12 @@
   register: date
 
 - name: '[ACTION:CheckParameter] Push files to destination'
-  win_copy:
+  win_file:
+    path: C:\JBS_work\log
+    state: directory
+- win_copy:
     src: '{{ item }}'
-    dest: C:\JBS_work\
+    dest: C:\JBS_work\log
   with_items:
     - Parameter_Check.bat
     - Parameter_Check.ps1
@@ -34,7 +37,7 @@
     context: "{{ result.stdout }}"
   delegate_to: localhost
 - win_file:
-    path: C:\JBS_work\{{ inventory_hostname }}_{{ datenum }}_Paramater_Check.txt
+    path: C:\JBS_work\log\{{ inventory_hostname }}_{{ datenum }}_Paramater_Check.txt
     state: absent
   vars: 
     datenum: "{{ date.stdout|regex_replace ('\\r','')|regex_replace ('\\n','') }}"
@@ -47,6 +50,7 @@
   with_items:
     - C:\Users\Administrator\.ansible_async
     - C:\Users\Administrator\machine-parm
+    - C:\Users\Administrator\result
     # - C:\JBS_work\Parameter_Check.bat
     # - C:\JBS_work\Parameter_Check.ps1
     # - C:\JBS_work\{{ inventory_hostname }}_{{ datenum }}_Paramater_Check.txt
@@ -59,6 +63,7 @@
   with_items:
     - recovery
     - destroy
+    - ansible
 
 
 

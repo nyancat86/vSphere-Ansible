@@ -1,0 +1,8 @@
+{% for item in win_overwrite %}
+{% if item.gateway != "" %}
+Get-NetAdapter -InterfaceDescription "{{ item.adapter }}"| Remove-NetIPAddress -confirm:$false; Get-NetAdapter -InterfaceDescription "{{ item.adapter }}"| New-NetIPAddress  -IPAddress {{ item.ip }} -PrefixLength {{ item.fulladdr | ipaddr('prefix') }}  -DefaultGateway {{ item.gateway }} -confirm:$false
+{% endif %}
+{% if item.gateway == "" %}
+Get-NetAdapter -InterfaceDescription "{{ item.adapter }}"| Remove-NetIPAddress -confirm:$false; Get-NetAdapter -InterfaceDescription "{{ item.adapter }}"| New-NetIPAddress  -IPAddress {{ item.ip }} -PrefixLength {{ item.fulladdr | ipaddr('prefix') }} -confirm:$false
+{% endif %}
+{% endfor %}

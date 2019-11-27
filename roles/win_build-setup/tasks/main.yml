@@ -15,9 +15,15 @@
 - name: '[ACTION:SNMP] PermittedManager'
   win_regedit:
     path: HKLM:\SYSTEM\CurrentControlSet\services\SNMP\Parameters\PermittedManagers
-    name: '2'
+    name: '1'
     type: string
     data: '10.47.3.83'
+    delete_key: true
+- name: '[ACTION:SNMP] PermittedManager'
+  win_regedit:
+    path: HKLM:\SYSTEM\CurrentControlSet\services\SNMP\Parameters\PermittedManagers
+    name: '2'
+    delete_key: true
 - name: '[ACTION:SNMP] ValidCommunities'
   win_regedit:
     path: HKLM:\SYSTEM\CurrentControlSet\services\SNMP\Parameters\ValidCommunities
@@ -83,6 +89,8 @@
   register: check_license
 
 
+
+
 - name: '[ACTION:PowerPlan] Change power plan'
   win_power_plan:
     name: 'バランス'
@@ -138,6 +146,8 @@
 ##         "failed": false
 ##     }
 ## }
+
+
 
 
 - name: '[ACTION:UserSetting] No Expired password for Administrator'
@@ -200,18 +210,27 @@
 ## }
 
 
+
+
 - name: '[ACTION:SMB MultiChannel] SMB MultiChannel Server setting False'
   win_command: powershell.exe -
   args:
     stdin: Set-SmbServerConfiguration -EnableMultiChannel:$false -Force; Get-SmbClientConfiguration > ./result; Get-Content ./result | Select-String "EnableMultiChannel" | Select-String "False"
   register: result
   changed_when: '"False" not in result.stdout'
+- win_command:
+  args:
+    stdin: Remove-Item ./result
 - name: '[ACTION:SMB MultiChannel] SMB MultiChannel Client setting False'
   win_command: powershell.exe -
   args:
     stdin: Set-SmbClientConfiguration -EnableMultiChannel:$false -Force; Get-SmbClientConfiguration > ./result; Get-Content ./result | Select-String "EnableMultiChannel" | Select-String "False"
   register: result
   changed_when: '"False" not in result.stdout'
+- win_command:
+  args:
+    stdin: Remove-Item ./result
+
 
 
 - name: '[ACTION:IE_ECS] Disable Setting (Admin)'
@@ -262,6 +281,10 @@
 ##     ]
 ## }
 
+
+
+
+
 - name: '[ACTION:RDP] Enable UserAuth'
   changed_when: '"UserAuthentication : 1" not in result.stdout_lines'
   win_command: powershell.exe -
@@ -297,21 +320,3 @@
 ##     ]
 ## }
 
-
-
-#### Testing 
-## - name: Transfer target
-##   win_copy:
-##     src: ./KB_file/target.msu
-##     dest: "C:\secure"
-##     force: yes
-
-## - name: Running Update
-##   win_command: wusa.exe -
-##   args:
-##    ## stdout: C:/work/Windows8.1-KB3079904-x64.msu /extract:C:/work/ 一度確認する
-
-## - name: Override test 
-##   win_command: pkgmgr.exe -
-##   args:
-##    ## stdout: /n:C:/work/Windows8.1-KB3079904-x64.xml /quiet /norestart

@@ -1,0 +1,14 @@
+- name: '[ACTION] Force online Network Adapter'
+  vmware_guest:
+    state:                    'present'
+    hostname:                 '{{ vcenter_hostname }}'
+    username:                 '{{ vcenter_username }}'
+    password:                 '{{ vcenter_password }}'
+    validate_certs:           'no'
+    datacenter:               '{{ datacenter }}'
+    datastore:                '{{ datastore }}'
+    cluster:                  '{{ cluster }}'
+    folder:                   '{{ deploy_folder }}'
+    name:                     '{{ inventory_hostname }}'
+    networks:                 '{{ export_nic }}'
+  delegate_to: localhost
