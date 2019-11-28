@@ -1,0 +1,184 @@
+---
+- name: '[ACTION:Timezone] Set timezone'
+  win_timezone:
+    timezone: Tokyo Standard Time
+  register: time_zone
+
+## See more:
+## https://docs.microsoft.com/en-us/previous-versions/windows/embedded/ms912391(v=winembedded.11)?redirectedfrom=MSDN
+
+## Output:
+## ok: [EXAMPLE] => {
+##     "changed": false,
+##     "previous_timezone": "Tokyo Standard Time",
+##     "timezone": "Tokyo Standard Time"
+## }
+
+- name: '[ACTION:RDP] Set to Enable'
+  win_regedit:
+    path: 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server'
+    name: 'fDenyTSConnections'
+    type: dword
+    data: 0
+- name: '[ACTION:RDP] Enabled UserAuthentication'
+  win_regedit:
+    path: 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp'
+    name: 'UserAuthentication'
+    type: dword
+    data: 1
+
+
+- name: '[ACTION:VirtualMemory] Set pagefile size'
+  win_pagefile:
+    drive: C
+    remove_all: true
+- win_pagefile:
+    drive: C
+    initial_size: '{{ (memory_mb+300)|int|abs }}'
+    maximum_size: '{{ (memory_mb+300)|int|abs }}'
+    state: present
+
+
+- name: '[ACTION:UAC] Set to Disabled'
+  win_regedit:
+    path: HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\policies\system
+    name: '{{ item }}'
+    type: dword
+    data: 0
+  with_items:
+    - EnableLUA
+    - ConsentPromptBehaviorAdmin
+    - PromptOnSecureDesktop
+
+
+- name: '[ACTION:RAM_Dump] Set to FullMemoryDump(1)'
+  changed_when: '"successful." not in result.stdout'
+  win_command: powershell.exe -
+  args:
+    stdin: wmic RECOVEROS set DebugInfoType=1
+  register: result
+
+## Output:
+## changed: [EXAMPLE] => {
+##     "changed": true,
+##     "cmd": "powershell.exe -",
+##     "delta": "0:00:00.593754",
+##     "end": "2019-11-15 04:32:50.446655",
+##     "rc": 0,
+##     "start": "2019-11-15 04:32:49.852900",
+##     "stderr": "",
+##     "stderr_lines": [],
+##     "stdout": "Updating property(s) of '\\\\WIN-MINPC\\ROOT\\CIMV2:Win32_OSRecoveryConfiguration.Name=\"Microsoft Windows Server 2016 Standard|C:\\\\Windows|\\\\Device\\\\Harddisk0\\\\Partition3\"'\r\r\nProperty(s) update successful.\r\r\n",
+##     "stdout_lines": [
+##         "Updating property(s) of '\\\\WIN-MINPC\\ROOT\\CIMV2:Win32_OSRecoveryConfiguration.Name=\"Microsoft Windows Server 2016 Standard|C:\\\\Windows|\\\\Device\\\\Harddisk0\\\\Partition3\"'",
+##         "",
+##         "Property(s) update successful.",
+##         ""
+##     ]
+## }
+
+
+- name: '[ACTION:Firewall] Set to disable'
+  win_firewall:
+    state: disabled
+    profiles:
+    - Domain
+    - Private
+    - Public
+
+
+- name: '[ACTION:Powerplan] Set to Balance'
+  win_power_plan:
+    name: 'バランス'
+
+## Output:
+## ok: [EXAMPLE] => {
+##     "all_available_plans": {
+##         "バランス": true,
+##         "省電力": false,
+##         "高パフォーマンス": false
+##     },
+##     "changed": false,
+##     "invocation": {
+##         "module_args": {
+##             "name": "バランス"
+##         }
+##     },
+##     "power_plan_enabled": true,
+##     "power_plan_name": "バランス"
+## }
+
+
+- name: '[ACTION:IE ECS_Admin] Set to Disable'
+  win_regedit:
+    path: HKLM:\SOFTWARE\Microsoft\Active Setup\Installed Components\{A509B1A7-37EF-4b3f-8CFC-4F3A74704073}
+    name: IsInstalled
+    type: dword
+    data: 0
+- name: '[ACTION:IE ECS_User] Set to Enable'
+  win_regedit:
+    path: HKLM:\SOFTWARE\Microsoft\Active Setup\Installed Components\{A509B1A8-37EF-4b3f-8CFC-4F3A74704073}
+    name: IsInstalled
+    type: dword
+    data: 1
+
+
+
+- name: '[ACTION:SNP] Set to Disabled all'
+  win_regedit:
+    path: 'HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters'
+    name: '{{ item }}'
+    type: dword
+    data: 0
+  with_items:
+    - EnableTCPChimney
+    - EnableRSS
+    - EnableTCPA
+
+
+
+- name: '[ACTION:SMB MultiChannel_Server] Set to False'
+  win_command: powershell.exe -
+  args:
+    stdin: Set-SmbServerConfiguration -EnableMultiChannel:$false -Force; Get-SmbClientConfiguration > ./result; Get-Content ./result | Select-String "EnableMultiChannel" | Select-String "False"
+  register: result
+  changed_when: '"False" not in result.stdout'
+- name: '[ACTION:SMB MultiChannel_Client] Set to False'
+  win_command: powershell.exe -
+  args:
+    stdin: Set-SmbClientConfiguration -EnableMultiChannel:$false -Force; Get-SmbClientConfiguration > ./result; Get-Content ./result | Select-String "EnableMultiChannel" | Select-String "False"
+  register: result
+  changed_when: '"False" not in result.stdout'
+
+
+- name: '[ACTION:LocalGroupPolicy] Administrator passwordexpires set to False'
+  changed_when: '"successful" not in result.stdout'
+  win_command: cmd.exe - 
+  args:
+    stdin: wmic UserAccount where Name="Administrator" set PasswordExpires=False
+  register: result
+
+## Output:
+## changed: [EXAMPLE] => {
+##     "changed": true,
+##     "cmd": "cmd.exe -",
+##     "delta": "0:00:00.125006",
+##     "end": "2019-11-15 04:32:47.774783",
+##     "rc": 0,
+##     "start": "2019-11-15 04:32:47.649777",
+##     "stderr": "",
+##     "stderr_lines": [],
+##     "stdout": "Microsoft Windows [Version 10.0.14393]\r\n(c) 2016 Microsoft Corporation. All rights reserved.\r\n\r\nC:\\Users\\Administrator>wmic UserAccount where Name=\"Administrator\" set PasswordExpires=False\r\nUpdating property(s) of '\\\\WIN-MINPC\\ROOT\\CIMV2:Win32_UserAccount.Domain=\"WIN-MINPC\",Name=\"Administrator\"'\r\r\nProperty(s) update successful.\r\r\n\r\nC:\\Users\\Administrator>",
+##     "stdout_lines": [
+##         "Microsoft Windows [Version 10.0.14393]",
+##         "(c) 2016 Microsoft Corporation. All rights reserved.",
+##         "",
+##         "C:\\Users\\Administrator>wmic UserAccount where Name=\"Administrator\" set PasswordExpires=False",
+##         "Updating property(s) of '\\\\WIN-MINPC\\ROOT\\CIMV2:Win32_UserAccount.Domain=\"WIN-MINPC\",Name=\"Administrator\"'",
+##         "",
+##         "Property(s) update successful.",
+##         "",
+##         "",
+##         "C:\\Users\\Administrator>"
+##     ]
+## }

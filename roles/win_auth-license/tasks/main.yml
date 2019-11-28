@@ -1,0 +1,46 @@
+---
+- name: '[ACTION:Network] Change InterfaceName'
+  changed_when: 'item.names.nic_name not in result.stdout_lines'
+  ignore_errors: yes
+  win_command: powershell.exe -
+  args:
+    stdin: Get-NetAdapter -InterfaceDescription "{{ item.names.adapter }}" | Rename-NetAdapter -NewName "{{ item.names.nic_name }}"; Get-NetAdapter -InterfaceDescription "{{ item.names.adapter }}" | Select-Object Name
+  register: result
+  with_items:
+    - '{{ BaseNetwork }}'
+- win_command: powershell.exe -
+  args:
+    stdin: netsh interface ip set address "{{ item.names.nic_name }}" static {{ item.interface.ip }}  {{ item.out_going.netmask }} {{ item.out_going.gateway }}
+  with_items:
+    - '{{ BaseNetwork }}'
+  async: 15
+  poll:  0
+- wait_for_connection:
+    delay: 5
+    timeout: 600
+- win_dns_client:
+    adapter_names: Operation
+    ipv4_addresses: '{{ item.out_going.gateway }}'
+  with_items:
+    - '{{ BaseNetwork }}'
+
+
+- name: '[FACTS:License]  Check product key'
+  win_product_facts:
+  register: check_license
+- name: '[ACTION:License] Push product key'
+  win_command: powershell.exe -
+  when: ansible_os_license_status != 'Licensed'
+  args:
+    stdin: cscript //Nologo $ENV:SystemRoot\System32\slmgr.vbs /ipk {{ license }}
+- name: '[ACTION:License] Register product key'
+  when: ansible_os_license_status != 'Licensed'
+  win_command: powershell.exe -
+  args:
+    stdin: cscript //Nologo $ENV:SystemRoot\System32\slmgr.vbs /ato
+- name: '[FETCH:License]  Check product key'
+  failed_when: ansible_os_license_status  != 'Licensed'
+  win_product_facts:
+  register: check_license
+
+

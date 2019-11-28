@@ -1,42 +1,64 @@
 ---
-# - name: '[ACTION:Hinemos] Setup Hinemos Agent'
-#   win_command: powershell.exe - 
-#   args:
-#     stdin: Start-Process 'C:\Program Files (x86)\Hinemos\Agent6.2.2\bin\HinemosAgentService64.exe' '-uninstall Hinemos_6.2_Agent'
-# - pause:
-#     seconds: 30
-# - win_reboot:
-# - win_shell: Start-Process ${ENV:ProgramFiles(x86)}\Hinemos\Agent6.2.2\bin\RegistAgentService.bat
-# - pause:
-#     seconds: 30
-# - win_reboot:
-# - win_command: powershell.exe
-#   failed_when: '"Running" not in result.stdout_lines'
-#   args:
-#     stdin: Get-Service -Name Hinemos_6.2_Agent | Select-Object Status
-#   register: result
+- name: '[ACTION:Hinemos] Setup Hinemos Agent'
+  win_command: powershell.exe - 
+  args:
+    stdin: Start-Process 'C:\Program Files (x86)\Hinemos\Agent6.2.2\bin\HinemosAgentService64.exe' '-uninstall Hinemos_6.2_Agent'
+- pause:
+    seconds: 30
+- win_reboot:
+- win_shell: Start-Process ${ENV:ProgramFiles(x86)}\Hinemos\Agent6.2.2\bin\RegistAgentService.bat
+- pause:
+    seconds: 30
+- win_reboot:
+- win_command: powershell.exe
+  failed_when: '"Running" not in result.stdout_lines'
+  args:
+    stdin: Get-Service -Name Hinemos_6.2_Agent | Select-Object Status
+  register: result
+- win_regedit:
+    path: HKLM:\SYSTEM\CurrentControlSet\services\SNMP\Parameters\PermittedManagers
+    name: '2'
+    type: string
+    data: '10.47.3.83'
+- win_regedit:
+    path: HKLM:\SYSTEM\CurrentControlSet\services\SNMP\Parameters\ValidCommunities
+    name: 'mhimailpub'
+    type: dword
+    data: 4
 
 
-
-# - name: '[ACTION:VBCorp] Setup Service'
-#   win_copy:
-#     src: q21_Connect_hq_sat_0200_20191106_64bit.exe
-#     dest: C:\JBS_work\VBCorp\
-#     force: yes
-#   register: result
-#   when: result is changed
-#   win_shell: C:\JBS_work\VBCorp\q21_Connect_hq_sat_0200_20191106_64bit.exe
-#   register: result
-# - win_reboot:
-#   when: result is changed
-
+- name: '[ACTION:VBCorp] Setup Service'
+  win_copy:
+    src: q21_Connect_hq_sat_0200_20191106_64bit.exe
+    dest: C:\JBS_work\VBCorp\
+    force: yes
+  register: result
+  when: result is changed
+  win_shell: C:\JBS_work\VBCorp\q21_Connect_hq_sat_0200_20191106_64bit.exe
+  register: result
+- win_reboot:
+  when: result is changed
 
 
-# - name: '[ACTION:WindowsFeatuer] Install Windows Feature'
-#   win_feature:
-#     name:   "{{ item }}"
-#     state:  present
-#   with_items:
-#     - "{{ windows_feature_set }}"
+## Testing
 
+- name: '[ACTION:WindowsUpdate] Install from files'
+  win_file:
+    path: C:\JBS_work\WindowsUpdates
+    state: directory
+- win_copy:
+    src: '{{ item }}'
+    dest: "C:\JBS_work\WindowsUpdates"
+    force: yes
+  with_items:
+    - '{{ hotfix }}'
+- name: Install hotfix without validating the KB and Identifier
+  win_hotfix:
+    source: 'C:\JBS_work\{{ item }}'
+    state: present
+  register: hotfix_install
 
+## - name: Override test 
+##   win_command: pkgmgr.exe -
+##   args:
+##    ## stdout: /n:C:/work/Windows8.1-KB3079904-x64.xml /quiet /norestart

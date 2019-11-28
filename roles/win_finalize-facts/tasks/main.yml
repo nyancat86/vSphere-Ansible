@@ -10,34 +10,35 @@
   args:
     stdin: Get-Date -Uformat %Y%m%d
   register: date
+# - win_reboot:
 
-- name: '[ACTION:CheckParameter] Push files to destination'
-  win_copy:
-    src: '{{ item }}'
-    dest: C:\JBS_work\
-  with_items:
-    - Parameter_Check.bat
-    - Parameter_Check.ps1
-- win_shell: C:\JBS_work\Parameter_Check.bat
-- win_command: powershell.exe -
-  args:
-    stdin: Get-Content C:\JBS_work\{{ inventory_hostname }}_{{ datenum }}_Paramater_Check.txt
-  vars: 
-    datenum: "{{ date.stdout|regex_replace ('\\r','')|regex_replace ('\\n','') }}"
-  register: result
-- template:
-    src: result.j2
-    dest: ./log/{{ inventory_hostname }}_{{ datenum }}_Paramater_Check.txt
-    output_encoding: utf-8
-  vars: 
-    datenum: "{{ date.stdout|regex_replace ('\\r','')|regex_replace ('\\n','') }}"
-    context: "{{ result.stdout }}"
-  delegate_to: localhost
-- win_file:
-    path: C:\JBS_work\{{ inventory_hostname }}_{{ datenum }}_Paramater_Check.txt
-    state: absent
-  vars: 
-    datenum: "{{ date.stdout|regex_replace ('\\r','')|regex_replace ('\\n','') }}"
+# - name: '[ACTION:CheckParameter] Push files to destination'
+#   win_copy:
+#     src: '{{ item }}'
+#     dest: C:\JBS_work\
+#   with_items:
+#     - Parameter_Check.bat
+#     - Parameter_Check.ps1
+# - win_shell: C:\JBS_work\Parameter_Check.bat
+# - win_command: powershell.exe -
+#   args:
+#     stdin: Get-Content C:\JBS_work\{{ inventory_hostname }}_{{ datenum }}_Paramater_Check.txt
+#   vars: 
+#     datenum: "{{ date.stdout|regex_replace ('\\r','')|regex_replace ('\\n','') }}"
+#   register: result
+# - template:
+#     src: result.j2
+#     dest: ./log/{{ inventory_hostname }}_{{ datenum }}_Paramater_Check.txt
+#     output_encoding: utf-8
+#   vars: 
+#     datenum: "{{ date.stdout|regex_replace ('\\r','')|regex_replace ('\\n','') }}"
+#     context: "{{ result.stdout }}"
+#   delegate_to: localhost
+# - win_file:
+#     path: C:\JBS_work\{{ inventory_hostname }}_{{ datenum }}_Paramater_Check.txt
+#     state: absent
+#   vars: 
+#     datenum: "{{ date.stdout|regex_replace ('\\r','')|regex_replace ('\\n','') }}"
 
 
 - name: '[FLUSH] Junk File'
@@ -62,11 +63,11 @@
 
 
 
-# - name: '[ACTION:Ansible] Disable Ansible'
-#   win_command: powershell.exe - 
-#   args:
-#     stdin: powershell.exe -File C:\JBS_work\destroy.ps1
-#   poll: 0
+- name: '[ACTION:Ansible] Disable Ansible'
+  win_command: powershell.exe - 
+  args:
+    stdin: powershell.exe -File C:\JBS_work\destroy.ps1
+  poll: 0
 
 # - debug:
 #     var: '{{ item }}'

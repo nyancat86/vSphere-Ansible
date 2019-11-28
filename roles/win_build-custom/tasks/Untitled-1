@@ -1,0 +1,91 @@
+
+#### Testing 
+## - name: Transfer target
+##   win_copy:
+##     src: ./KB_file/target.msu
+##     dest: "C:\secure"
+##     force: yes
+
+## - name: Running Update
+##   win_command: wusa.exe -
+##   args:
+##    ## stdout: C:/work/Windows8.1-KB3079904-x64.msu /extract:C:/work/ 一度確認する
+
+## - name: Override test 
+##   win_command: pkgmgr.exe -
+##   args:
+##    ## stdout: /n:C:/work/Windows8.1-KB3079904-x64.xml /quiet /norestart
+
+
+
+
+
+
+
+
+
+# - name: '[ACTION:Network] Change InterfaceName'
+#   changed_when: 'item.names.nic_name not in result.stdout_lines'
+#   ignore_errors: yes
+#   win_command: powershell.exe -
+#   args:
+#     stdin: Get-NetAdapter -InterfaceDescription "{{ item.names.adapter }}" | Rename-NetAdapter -NewName "{{ item.names.nic_name }}"; Get-NetAdapter -InterfaceDescription "{{ item.names.adapter }}" | Select-Object Name
+#   register: result
+#   with_items:
+#     - '{{ BaseNetwork }}'
+# - name: '[ACTION:Network] Change gateway on first NIC'
+#   win_command: powershell.exe -
+#   args:
+#     stdin: netsh interface ip set address "{{ item.names.nic_name }}" static {{ item.interface.ip }}  {{ item.out_going.netmask }} {{ item.out_going.gateway }}
+#   with_items:
+#     - '{{ BaseNetwork }}'
+#   async: 15
+#   poll:  0
+# - name: '[ACTION:ResetInterface] Fetch Connection'
+#   wait_for_connection:
+#     delay: 5
+#     timeout: 600
+# - name: '[ACTION:Network] Set DNS Address for Operation'
+#   win_dns_client:
+#     adapter_names: Operation
+#     ipv4_addresses: '{{ item.out_going.gateway }}'
+#   with_items:
+#     - '{{ BaseNetwork }}'
+
+
+- name: '[FACTS:License] Check product key'
+  win_product_facts:
+  register: check_license
+- name: '[ACTION:License] Push product key'
+  win_command: powershell.exe -
+  when: ansible_os_license_status != 'Licensed'
+  args:
+    stdin: cscript //Nologo $ENV:SystemRoot\System32\slmgr.vbs /ipk {{ license }}
+- name: '[ACTION:License] Register product key'
+  when: ansible_os_license_status != 'Licensed'
+  win_command: powershell.exe -
+  args:
+    stdin: cscript //Nologo $ENV:SystemRoot\System32\slmgr.vbs /ato
+- name: '[FACTS:License] Check product key'
+  failed_when: ansible_os_license_status  != 'Licensed'
+  win_product_facts:
+  register: check_license
+
+
+
+
+- name: '[ACTION:Timezone] Set timezone'
+  win_timezone:
+    timezone: Tokyo Standard Time
+  register: time_zone
+
+## See more:
+## https://docs.microsoft.com/en-us/previous-versions/windows/embedded/ms912391(v=winembedded.11)?redirectedfrom=MSDN
+
+## Output:
+## ok: [EXAMPLE] => {
+##     "changed": false,
+##     "previous_timezone": "Tokyo Standard Time",
+##     "timezone": "Tokyo Standard Time"
+## }
+

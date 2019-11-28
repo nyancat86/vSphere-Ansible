@@ -8,6 +8,5 @@ ova/
 lists/
 host_vars/
 group_vars/
-roles/*/files
 log/
 roles/*/files/

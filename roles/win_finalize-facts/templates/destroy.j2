@@ -3,4 +3,5 @@
     powershell.exe -ExecutionPolicy RemoteSigned -Command "Set-ExecutionPolicy RemoteSigned"
     winrm set winrm/config/service '@{AllowUnencrypted="false"}'
     winrm set winrm/config/service/Auth '@{Basic="false"}'
-    Remove-Item C:\destroy.ps1 -Force
+    Remove-Item C:\JBS_work\destroy.ps1 -Force
+    Remove-Item C:\Users\Administrator\.ansible_async
